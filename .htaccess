@@ -1,0 +1,43 @@
+# Use PHP5.6 Single php.ini as default
+AddHandler application/x-httpd-php56s .php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+#deny .htaccess from directly access.
+<Files ".htaccess">
+    order allow,deny
+    deny from all
+</Files>
+
+# If you get 'No input file specified'. message or you have problems with FastCGI.
+# Remove (#) from beginning Options +ExecCGI.
+Options +ExecCGI
+
+##
+ # If Apache is compiled with built in mod_deflade/GZIP support
+ # then GZIP Javascript, CSS, HTML and XML so they're sent to
+ # the client faster.
+ ##
+<IfModule mod_deflate.c>
+	AddOutputFilterByType DEFLATE application/javascript text/css text/html text/xml application/json
+</IfModule>
+
+##
+ # mod_gzip is an external extension module for Apache that allows you to quickly and easily compress your files before you send them to the client.
+ # This speeds up your site like crazy!
+ # If your hosting provider has mod_gzip module enabled start GZIP.
+ ##
+<ifModule mod_gzip.c>
+    mod_gzip_on Yes
+    mod_gzip_dechunk Yes
+    mod_gzip_item_include file \.(html?|txt|css|js|php|pl|tpl)$
+    mod_gzip_item_include handler ^cgi-script$
+    mod_gzip_item_include mime ^text/.*
+    mod_gzip_item_include mime ^application/x-javascript.*
+    mod_gzip_item_exclude mime ^image/.*
+    mod_gzip_item_exclude rspheader ^Content-Encoding:.*gzip.*
+</ifModule>
