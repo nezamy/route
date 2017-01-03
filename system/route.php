@@ -57,10 +57,10 @@ class Route
      *
      * @return  $this
      */
-    public static function instance()
+    public static function instance(Request $req)
     {
         if (null === static::$instance) {
-            static::$instance = new static;
+            static::$instance = new static($req);
         }
         return static::$instance;
     }
@@ -123,11 +123,12 @@ class Route
                             $this->req->args[$value] = array_shift($args);
                         }
 
-                        if (isset($this->req->args[0]) && count($this->req->args) == 1)
+                        if (isset($args[0]) && count($args) == 1)
                         {
-                            foreach (explode('/', $this->req->args[0]) as $arg) {
+                            foreach (explode('/', $args[0]) as $arg) {
                                 $this->req->args[] = $arg;
                             }
+                            $this->fullArg = $this->req->args[0] = $args[0];
                         }
                     }
 
@@ -371,16 +372,16 @@ class Route
     {
         if (isset($callback))
         {
-            if ( is_callable($callback) && !is_array($callback) )
+            if ( is_callable($callback) && $callback instanceof \Closure)
             {
                 //Set new object and append the callback with some data
-                $o = new \ArrayObject($this->req->args);
+                $o = new \ArrayObject($args);
+                $o->app = App::instance();
                 $callback = $callback->bindTo($o);
             }
-            elseif (!is_array($callback))
+            elseif (is_string($callback) && strpos($callback, '@') !== false)
             {
-                $fixcallback       = str_replace(['.','@','->'],'@', $callback);
-                $fixcallback       = explode('@',$fixcallback,2);
+                $fixcallback       = explode('@', $callback, 2);
                 $this->Controller  = $fixcallback[0];
 
                 if ( is_callable(
@@ -389,13 +390,17 @@ class Route
                     $this->Method = $callback[1];
                 } else {
                     throw new \Exception("Callable error on {$callback[0]} -> {$callback[1]} !");
-                   }
+                }
             } else {
                 throw new \Exception("Callable error on {$callback[0]} -> {$callback[1]} try with namespace");
             }
 
             if(is_array($callback) && !is_object($callback[0])){
                 $callback[0] = new $callback[0];
+            }
+
+            if(isset($args[0]) && $args[0] == $this->fullArg){
+                array_shift($args);
             }
 
             //Finaly call the method
@@ -434,7 +439,7 @@ class Route
             return call_user_func_array([$this, 'route'], $args);
         }
 
-        return  isset($this->{$method}) && is_callable($this->{$method})
+        return  is_string($method) && isset($this->{$method}) && is_callable($this->{$method})
                 ? call_user_func_array($this->{$method}, $args) : null;
     }
 
@@ -446,7 +451,7 @@ class Route
      */
     public function __set($k, $v)
     {
-        $this->{$k} = $v instanceof Closure ? $v->bindTo($this) : $v;
+        $this->{$k} = $v instanceof \Closure ? $v->bindTo($this) : $v;
     }
 
 }
