@@ -19,8 +19,26 @@ namespace System;
  */
 class App
 {
+    private static $instance;
+    
+    /**
+     * Constractor - define some variables
+     */
     public function __construct(){
         $this->autoload();
+    }
+
+    /**
+     * Singleton instance
+     *
+     * @return  $this
+     */
+    public static function instance()
+    {
+        if (null === static::$instance) {
+            static::$instance = new static;
+        }
+        return static::$instance;
     }
 
     /**
@@ -65,6 +83,6 @@ class App
      */
 	public function __set($k, $v)
 	{
-		$this->{$k} = $v instanceof Closure ? $v->bindTo($this) : $v;
+		$this->{$k} = $v instanceof \Closure ? $v->bindTo($this) : $v;
 	}
 }
