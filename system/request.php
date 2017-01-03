@@ -20,6 +20,8 @@ namespace System;
 
 class Request
 {
+    private static $instance;
+    
     /**
      * Constractor - define some variables
      */
@@ -60,6 +62,19 @@ class Request
         $this->cookies      = $_COOKIE;
         $x_requested_with = isset($this->headers['x_requested_with']) ? $this->headers['x_requested_with'] : false;
         $this->ajax = $x_requested_with === 'XMLHttpRequest';
+    }
+
+    /**
+     * Singleton instance
+     *
+     * @return  $this
+     */
+    public static function instance()
+    {
+        if (null === static::$instance) {
+            static::$instance = new static;
+        }
+        return static::$instance;
     }
 
     /**
@@ -174,6 +189,6 @@ class Request
      */
 	public function __set($k, $v)
 	{
-		$this->{$k} = $v instanceof Closure ? $v->bindTo($this) : $v;
+		$this->{$k} = $v instanceof \Closure ? $v->bindTo($this) : $v;
 	}
 }
