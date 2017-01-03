@@ -9,6 +9,6 @@ error_reporting(E_ALL);
 require "app.php";
 require "function.php";
 
-$app            = new System\App;
-$app->request   = new System\Request;
-$app->route     = new System\Route($app->request);
+$app            = System\App::instance();
+$app->request   = System\Request::instance();
+$app->route     = System\Route::instance($app->request);
