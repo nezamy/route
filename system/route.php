@@ -44,9 +44,9 @@ class Route
     {
         $this->routes         = $this->urls = [];
         $this->group          = $this->matchedPath = '';
-        $this->matched        = false; //if uri exists
-        $this->pramsGroup     = [];
-        $this->groupAs        = '';
+        $this->matched        = false;
+        $this->pramsGroup     = $this->matchedArgs = [];
+        $this->groupAs        = $this->fullArg = '';
         $this->isGroup        = false;
         $this->req            = $req;
         $this->roles          = [];
@@ -80,14 +80,15 @@ class Route
         if ( is_array($uri) ) {
             foreach ( $uri as $u ) {
                 $this->route($method, $u, $callback, $options);
+
             }
             return $this;
         }
 
-        $options = array_merge(['ajaxOnly' => false], $options);
+        $options = array_merge(['ajaxOnly' => false, 'continu' => false], $options);
 
         if($uri != '/'){
-            $uri = $this->trimc($uri).'/';
+            $uri = $this->removeDuplSlash($uri).'/';
         }
 
         // replace named uri pram to regx pattern
@@ -104,37 +105,27 @@ class Route
             {
                 //prepare
                 $pattern = $this->prepare(
-                    str_replace(['/?', '/*'], [ $this->pattern['/?'], $this->pattern['/*'] ], $this->group.$pattern)
+                    str_replace(['/?', '/*'], [ $this->pattern['/?'], $this->pattern['/*'] ], $this->removeDuplSlash($this->group.$pattern))
                 );
 
                 //if matched
                 $method = count($method) > 0 ? in_array($this->req->method, $method) : true;
-                if ( $method && ( $args = $this->matched($pattern) ) !== false )
+                if ( $method && $this->matched($pattern) )
                 {
                     if($this->isGroup){
                         $this->prams = array_merge($this->pramsGroup, $this->prams);
                     }
 
-                    if (count($this->prams) == count($args)) {
-                        $this->req->args = array_combine($this->prams, $args);
-                    } else {
-                        $this->req->args = [];
-                        foreach ($this->prams as $key => $value) {
-                            $this->req->args[$value] = array_shift($args);
-                        }
-
-                        if (isset($args[0]) && count($args) == 1)
-                        {
-                            foreach (explode('/', $args[0]) as $arg) {
-                                $this->req->args[] = $arg;
-                            }
-                            $this->fullArg = $this->req->args[0] = $args[0];
-                        }
-                    }
+                    $this->req->args = $this->bindArgs($this->prams, $this->matchedArgs);
 
                     $this->matchedPath   = $this->currentUri;
                     $this->routeCallback = $callback;
                     $this->saveit[]      = $this->getGroupAs().$this->matchedPath;
+
+                    if($options['continu']){
+                        $this->callback($this->routeCallback, $this->req->args);
+                        $this->routeCallback = $this->matched = false;
+                    }
                 }
             }
         }
@@ -158,22 +149,56 @@ class Route
             return $this;
         }
 
-        $group = $this->trimc($group);
+        $group = $this->removeDuplSlash($group.'/');
         $group = $this->namedParameters($group, true);
 
-        // if ( $this->matched( $this->prepare($group, false), false ) !== false ) {
-            $currentGroup     = $group;
-            $this->group     .= $currentGroup;
-            $callback         = $callback->bindTo($this);
+        $this->matched( $this->prepare($group, false), false );
 
-            call_user_func_array($callback, $this->req->args);
-            $this->isGroup     = false;
-            $this->pramsGroup  = [];
-            $this->group = substr($this->group, 0, -strlen($currentGroup));
-        // }
+        $currentGroup     = $group;
+        $this->group     .= $currentGroup;
+        $callback         = $callback->bindTo($this);
+
+        call_user_func_array($callback, $this->bindArgs($this->pramsGroup, $this->matchedArgs));
+
+        $this->isGroup     = false;
+        $this->pramsGroup  = [];
+        $this->group = substr($this->group, 0, -strlen($currentGroup));
+
         return $this;
     }
 
+    /**
+     * Bind args and parameters
+     *
+     * @param   array    $pram
+     * @param   array    $args
+     *
+     * @return  array
+     */
+    public function bindArgs(array $pram, array $args)
+    {
+        if (count($pram) == count($args)) {
+            $newArgs = array_combine($pram, $args);
+        } else {
+            $newArgs = [];
+            foreach ($pram as $p) {
+                $newArgs[$p] = array_shift($args);
+            }
+
+            if (isset($args[0]) && count($args) == 1)
+            {
+                foreach (explode('/', '/'.$args[0]) as $arg) {
+                    $newArgs[] = $arg;
+                }
+                $this->fullArg = $newArgs[0] = $args[0];
+            }
+            // pre($args);
+            if(count($args)){
+                $newArgs = array_merge($newArgs, $args);
+            }
+        }
+        return $newArgs;
+    }
     /**
      * register a parameter name with validation from route uri
      *
@@ -244,9 +269,9 @@ class Route
         if ( preg_match($patt, $this->req->path, $m) ) {
             if ($call) {
                 $this->matched = true;
-                array_shift($m);
-                return array_map([$this, 'trimc'], $m);
             }
+            array_shift($m);
+            $this->matchedArgs =  array_map([$this, 'trimSlash'], $m);
             return true;
         }
         return false;
@@ -259,8 +284,19 @@ class Route
      *
      * @return  string
      */
-    protected function trimc($uri) {
-        return preg_replace('/\/+/', '/', '/'.trim($uri,'/'));
+    protected function removeDuplSlash($uri) {
+        return preg_replace('/\/+/', '/', '/'.$uri);
+    }
+
+    /**
+     * trim the slashes
+     *
+     * @param   string     $uri
+     *
+     * @return  string
+     */
+    protected function trimSlash($uri) {
+        return trim($uri, '/');
     }
 
     /**
