@@ -45,11 +45,14 @@ class Route
         $this->routes         = $this->urls = [];
         $this->group          = $this->matchedPath = '';
         $this->matched        = false;
-        $this->pramsGroup     = $this->matchedArgs = [];
+        $this->pramsGroup     = $this->matchedArgs = $this->pattGroup = [];
         $this->groupAs        = $this->fullArg = '';
         $this->isGroup        = false;
         $this->req            = $req;
         $this->roles          = [];
+        $this->bindedGroups   = $this->currentGroup = [];
+        defined('URL') || define('URL', $req->url, TRUE);
+
     }
 
     /**
@@ -154,15 +157,17 @@ class Route
 
         $this->matched( $this->prepare($group, false), false );
 
-        $currentGroup     = $group;
-        $this->group     .= $currentGroup;
+        $this->currentGroup = $group;
+        // add this group and sub groups to append to route uri
+        $this->group     .= $group;
+        // bind to Route Class
         $callback         = $callback->bindTo($this);
-
+        // Call with args
         call_user_func_array($callback, $this->bindArgs($this->pramsGroup, $this->matchedArgs));
 
         $this->isGroup     = false;
-        $this->pramsGroup  = [];
-        $this->group = substr($this->group, 0, -strlen($currentGroup));
+        $this->pramsGroup  = $this->pattGroup = [];
+        $this->group = substr($this->group, 0, -strlen($group));
 
         return $this;
     }
@@ -175,7 +180,7 @@ class Route
      *
      * @return  array
      */
-    public function bindArgs(array $pram, array $args)
+    protected function bindArgs(array $pram, array $args)
     {
         if (count($pram) == count($args)) {
             $newArgs = array_combine($pram, $args);
@@ -216,12 +221,6 @@ class Route
         // replace named parameters to regx pattern
         return preg_replace_callback('/\/\{([a-z-0-9]+)\}\??(:\(?[^\/]+\)?)?/i', function($m) use ($isGroup)
         {
-            if ($isGroup) {
-                $this->isGroup      = true;
-                $this->pramsGroup[] = $m[1];
-            } else {
-                $this->prams[] = $m[1];
-            }
             //check if validation is seted and exists or not
             if (isset($m[2])) {
                 $rep = substr($m[2], 1);
@@ -234,7 +233,16 @@ class Route
                 $patt = str_replace('/(', '(/', $patt).'?';
             }
 
-            return $this->patt[] = $patt;
+            if ($isGroup) {
+                $this->isGroup      = true;
+                $this->pramsGroup[] = $m[1];
+                $this->pattGroup[]  = $patt;
+            } else {
+                $this->prams[]      = $m[1];
+                $this->patt[]       = $patt;
+            }
+
+            return $patt;
         }, trim($uri));
     }
 
@@ -318,20 +326,40 @@ class Route
      public function _as($name)
      {
         $name = strtolower($name);
-
         if (array_key_exists($name, $this->routes))
         {
             throw new \Exception ("Route name ($name) already registered.");
         }
 
-        if (count($this->prams)) {
-            foreach ($this->prams as $k => $v) {
-                $this->prams[$k] = '/:'.$v;
+        $patt = $this->patt;
+        $pram = $this->prams;
+        // merge group parameters with route parameters
+        if($this->isGroup){
+            $patt = array_merge($this->pattGroup, $patt);
+            if(count($patt) > count($pram)){
+                $pram = array_merge($this->pramsGroup, $pram);
+            }
+        }
+
+        // :param
+        if ($cprams = count($pram)) {
+            foreach ($pram as $k => $v) {
+                $pram[$k] = '/:'.$v;
             }
         }
 
         $name = str_replace('/', '.', $name);
-        $this->routes[$name] = strtolower(str_replace($this->patt, $this->prams, $this->group.$this->currentUri));
+
+        // replace pattern to named parameters
+        $replaced = $this->group.$this->currentUri;
+        foreach ($patt as $k => $v) {
+            $pos = strpos($replaced, $v);
+            if ($pos !== false) {
+                $replaced = substr_replace($replaced, $pram[$k], $pos, strlen($v));
+            }
+        }
+
+        $this->routes[$name] = ltrim( $this->removeDuplSlash(strtolower($replaced)), '/');
 
         return $this;
     }
@@ -375,7 +403,6 @@ class Route
                 $route = str_replace(':'.$k, $v, $route);
             }
             return $route;
-            // return rtrim($route,'/').'/';
         }
         return null;
     }
