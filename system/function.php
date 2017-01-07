@@ -26,3 +26,24 @@ function dpre(){
 function br($line) {
     echo $line."<br/>";
 }
+
+//===================================================
+//============= Shortcuts functions =================
+//===================================================
+
+//=======[  instance class App ]=====================
+function app($c=null) {
+    $app = system\App::instance();
+    if($c) {
+        return $app->$c;
+    }
+    return $app;
+}
+//=======[ get donain url ]=========================
+function url($path=null){
+    return URL . rtrim(trim($path), '/'). '/';
+}
+//=======[ get route url by name  ]=================
+function route($name, array $args=[]) {
+    return url(app('route')->getRoute($name, $args));
+}
