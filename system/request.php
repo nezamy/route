@@ -28,7 +28,21 @@ class Request
     public function __construct()
     {
         $this->server = $_SERVER;
-        $this->path = preg_replace('/\/+/', '/', '/' . trim(parse_url($this->server["REQUEST_URI"], PHP_URL_PATH), '/') . '/');
+
+        $uri    = parse_url($this->server["REQUEST_URI"], PHP_URL_PATH);
+        $script = $_SERVER['SCRIPT_NAME'];
+        $parent = dirname($script);
+
+        // fix path if not runing on domain or local domain 
+        if ( stripos($uri, $script) !== false ) {
+            $this->path = substr($uri, strlen($script));
+        } elseif ( stripos($uri, $parent) !== false ){
+            $this->path = substr($uri, strlen($parent));
+        } else {
+            $this->path = $uri;
+        }
+
+        $this->path = preg_replace('/\/+/', '/', '/' . trim($this->path, '/') . '/');
         $this->hostname     = str_replace('/:(.*)$/', "", $_SERVER['HTTP_HOST']);
         $this->servername   = empty($_SERVER['SERVER_NAME']) ? $this->hostname : $_SERVER['SERVER_NAME'];
         $this->secure       = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on');
