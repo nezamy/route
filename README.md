@@ -83,12 +83,12 @@ $route->get('/?', function($page){
 $route->get('/post/?', function($id){
     // Will match anything like post/hello or post/5 ...
     // But not match /post/5/title
-    echo "post id $page";
+    echo "post id $id";
 });
 
 // more than parameters
 $route->get('/post/?/?', function($id, $title){
-    echo "post id $page and title $title";
+    echo "post id $id and title $title";
 });
 ```
 ### For “unlimited” optional parameters, you can do this:
