@@ -1,9 +1,9 @@
 # Route
-Route - fast, flexible route for PHP, Enables you to quickly and easily build RESTful web applications
+Route - Fast, flexible routing for PHP, enabling you to quickly and easily build RESTful web applications.
 
 # Usage
 
-## How it working
+## How it works
 Routing is done by matching a URL pattern with a callback function.
 ### index.php
 ```php
@@ -44,45 +44,45 @@ $route->get('/', 'home@pages');
 ## Method Routing
 ```php
 $route->any('/', function(){
-    // any method request
+    // Any method requests
 });
 
 $route->get('/', function(){
-    // only GET request
+    // Only GET requests
 });
 
 $route->post('/', function(){
-    // only POST request
+    // Only POST requests
 });
 
 $route->put('/', function(){
-    // only PUT request
+    // Only PUT requests
 });
 
 $route->patch('/', function(){
-    // only PATCH request
+    // Only PATCH requests
 });
 
 $route->delete('/', function(){
-    // only DELETE request
+    // Only DELETE requests
 });
 
-// you can use multi method just add _ between method name
+// You can use multiple methods. Just add _ between method names
 $route->get_post('/', function(){
-    // only GET and POST request
+    // Only GET and POST requests
 });
 ```
 ## Parameters
 ```php
-// this example will match any page name
+// This example will match any page name
 $route->get('/?', function($page){
     echo "you are in $page";
 });
 
-// this example will match any thing after post/ limit 1 arg
+// This example will match anything after post/ - limited to 1 argument
 $route->get('/post/?', function($id){
-    // will match any thing like post/hello or post/5 ...
-    // but not match /post/5/title
+    // Will match anything like post/hello or post/5 ...
+    // But not match /post/5/title
     echo "post id $page";
 });
 
@@ -91,9 +91,9 @@ $route->get('/post/?/?', function($id, $title){
     echo "post id $page and title $title";
 });
 ```
-### For “Unlimited” optional parameters, you can do this:
+### For “unlimited” optional parameters, you can do this:
 ```php
-// this example will match any thing after blog/ unlimited args
+// This example will match anything after blog/ - unlimited arguments
 $route->get('/blog/*', function(){
     // [$this] instanceof ArrayObject so you can get all args by getArrayCopy()
     pre($this->getArrayCopy());
@@ -114,26 +114,26 @@ $route->get('/{username}/{page}', function($username, $page){
 ## Regular Expressions
 You can validate the args by regular expressions.
 ```php
-// validate args by regular expressions uses :(your pattern here)
+// Validate args by regular expressions uses :(your pattern here)
 $route->get('/{username}:([0-9a-z_.-]+)/post/{id}:([0-9]+)',
 function($username, $id)
 {
     echo "author $username post id $id";
 });
 
-// you can add named regex pattern in route
+// You can add named regex pattern in routes
 $route->addPattern([
     'username' => '/([0-9a-z_.-]+)',
     'id' => '/([0-9]+)'
 ]);
 
-// now you can use named regx
+// Now you can use named regex
 $route->get('/{username}:username/post/{id}:id', function($username, $id){
     echo "author $username post id $id";
 });
 ```
-### Some named regx pattern already registered in route
-```php 
+### Some named regex patterns already registered in routes
+```php
 [
     'int'               => '/([0-9]+)',
     'multiInt'          => '/([0-9,]+)',
@@ -146,7 +146,7 @@ $route->get('/{username}:username/post/{id}:id', function($username, $id){
     'multiIsoCode3'     => '/([a-z,]{3,})'
 ]
 ```
-## Optional Parameters
+## Optional parameters
 You can specify named parameters that are optional for matching by adding (?)
 ```php
 $route->get('/post/{title}?:title/{date}?',
@@ -190,7 +190,7 @@ $route->group('/admin', function()
         });
     });
 
-    // anything else
+    // Anything else
     $this->any('/*', function(){
         pre("Page ( {$this->app->request->path} ) Not Found", 6);
     });

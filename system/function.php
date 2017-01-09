@@ -1,6 +1,6 @@
 <?php
 //===================================================
-//============= Developmets functions ===============
+//============= Development functions ===============
 //===================================================
 
 //=============[ pre() is print array ]==============
@@ -10,7 +10,7 @@ function pre($arr,$them=1){
     case 2: $color='#e4e7e7'; $background='#2295bc'; break;
     case 3: $color='#064439'; $background='#51bba8'; break;
     case 4: $color='#efc75e'; $background='#324d5b'; break;
-    case 5: $color='#000000'; $background='#B1EEA1'; break;
+    case 5: $color='#000000'; $background='#b1eea1'; break;
     case 6: $color='#fff'; $background='#e2574c';    break;
     default:    $color='#2295bc'; $background='#e4e7e7'; break;
   }?>
@@ -28,7 +28,7 @@ function br($line) {
 }
 
 //===================================================
-//============= Shortcuts functions =================
+//============= Shortcut functions =================
 //===================================================
 
 //=======[  instance class App ]=====================
@@ -39,7 +39,7 @@ function app($c=null) {
     }
     return $app;
 }
-//=======[ get donain url ]=========================
+//=======[ get domain url ]=========================
 function url($path=null){
     return URL . rtrim(trim($path), '/'). '/';
 }
