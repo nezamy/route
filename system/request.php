@@ -21,9 +21,9 @@ namespace System;
 class Request
 {
     private static $instance;
-    
+
     /**
-     * Constractor - define some variables
+     * Constructor - Define some variables.
      */
     public function __construct()
     {
@@ -33,7 +33,7 @@ class Request
         $script = $_SERVER['SCRIPT_NAME'];
         $parent = dirname($script);
 
-        // fix path if not runing on domain or local domain 
+        // Fix path if not runing on domain or local domain.
         if ( stripos($uri, $script) !== false ) {
             $this->path = substr($uri, strlen($script));
         } elseif ( stripos($uri, $parent) !== false ){
@@ -79,9 +79,9 @@ class Request
     }
 
     /**
-     * Singleton instance
+     * Singleton instance.
      *
-     * @return  $this
+     * @return $this
      */
     public static function instance()
     {
@@ -92,9 +92,9 @@ class Request
     }
 
     /**
-     * Get user IP
+     * Get user IP.
      *
-     * @return  string
+     * @return string
      */
     public function ip ()
     {
@@ -120,9 +120,9 @@ class Request
     }
 
     /**
-     * Get user browser
+     * Get user browser.
      *
-     * @return  string
+     * @return string
      */
     public function browser()
     {
@@ -141,9 +141,9 @@ class Request
     }
 
     /**
-     * Get user platform
+     * Get user platform.
      *
-     * @return  string
+     * @return string
      */
     public function platform()
     {
@@ -156,9 +156,9 @@ class Request
     }
 
     /**
-     * Check if user opened from mobile - tablet or not
+     * Check whether user has connected from a mobile device (tablet, etc).
      *
-     * @return  bol
+     * @return bool
      */
     public function isMobile()
     {
@@ -171,23 +171,23 @@ class Request
             '/webos/i' => 'Mobile'
         );
 
-        //Return true if Mobile User Agent is detected
+        // Return true if mobile User Agent is detected.
         foreach($aMobileUA as $sMobileKey => $sMobileOS){
             if(preg_match($sMobileKey, $_SERVER['HTTP_USER_AGENT'])){
                 return true;
             }
         }
-        //Otherwise return false..
+        // Otherwise, return false.
         return false;
     }
 
     /**
-     * Magic call
+     * Magic call.
      *
-     * @param   string   $method
-     * @param   array    $args
+     * @param string   $method
+     * @param array    $args
      *
-     * @return  mixed
+     * @return mixed
      */
     public function __call($method, $args)
 	{
@@ -196,10 +196,10 @@ class Request
 	}
 
     /**
-     * Set new variables and functions to this class
+     * Set new variables and functions to this class.
      *
-     * @param   string      $k
-     * @param   mixed    $v
+     * @param string      $k
+     * @param mixed    $v
      */
 	public function __set($k, $v)
 	{

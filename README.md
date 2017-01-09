@@ -133,7 +133,7 @@ $route->get('/{username}:username/post/{id}:id', function($username, $id){
 });
 ```
 ### Some named regex patterns already registered in routes
-```php 
+```php
 [
     'int'               => '/([0-9]+)',
     'multiInt'          => '/([0-9,]+)',

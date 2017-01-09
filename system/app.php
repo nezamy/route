@@ -20,18 +20,18 @@ namespace System;
 class App
 {
     private static $instance;
-    
+
     /**
-     * Constractor - define some variables
+     * Constructor - Define some variables.
      */
     public function __construct(){
         $this->autoload();
     }
 
     /**
-     * Singleton instance
+     * Singleton instance.
      *
-     * @return  $this
+     * @return $this
      */
     public static function instance()
     {
@@ -42,7 +42,7 @@ class App
     }
 
     /**
-     * Magic autoload
+     * Magic autoload.
      */
     public function autoload()
     {
@@ -62,12 +62,12 @@ class App
     }
 
     /**
-     * Magic call
+     * Magic call.
      *
-     * @param   string   $method
-     * @param   array    $args
+     * @param string   $method
+     * @param array    $args
      *
-     * @return  mixed
+     * @return mixed
      */
     public function __call($method, $args)
 	{
@@ -76,10 +76,10 @@ class App
 	}
 
     /**
-     * Set new variables and functions to this class
+     * Set new variables and functions to this class.
      *
-     * @param   string      $k
-     * @param   mixed    $v
+     * @param string      $k
+     * @param mixed    $v
      */
 	public function __set($k, $v)
 	{

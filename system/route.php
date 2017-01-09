@@ -21,7 +21,7 @@ class Route
 {
     private static $instance;
     /**
-     * Named parameters list
+     * Named parameters list.
      */
     protected $pattern      = [
         '/*'                => '/(.*)',
@@ -38,7 +38,7 @@ class Route
     ];
 
     /**
-     * Constractor - define some variables
+     * Constructor - Define some variables.
      */
     public function __construct(Request $req)
     {
@@ -56,9 +56,9 @@ class Route
     }
 
     /**
-     * Singleton instance
+     * Singleton instance.
      *
-     * @return  $this
+     * @return $this
      */
     public static function instance(Request $req)
     {
@@ -69,14 +69,14 @@ class Route
     }
 
     /**
-     * Regsiter a route with callback
+     * Register a route with callback.
      *
-     * @param   array           $method
-     * @param   string|array    $uri
-     * @param   callable        $callback
-     * @param   array           $options
+     * @param array           $method
+     * @param string|array    $uri
+     * @param callable        $callback
+     * @param array           $options
      *
-     * @return  $this
+     * @return $this
      */
     public function route (array $method, $uri, $callback, $options = [])
     {
@@ -94,24 +94,24 @@ class Route
             $uri = $this->removeDuplSlash($uri).'/';
         }
 
-        // replace named uri pram to regx pattern
+        // Replace named uri param to regex pattern.
         $pattern  = $this->namedParameters($uri);
 
-        //clean uri for route name
+        // Clean uri for route name.
         // $this->currentUri = trim( str_replace($this->patt, '', $pattern) ,'/').'/';
         $this->currentUri = $pattern;
 
         if ($options['ajaxOnly'] == false || $options['ajaxOnly'] && $this->req->ajax)
         {
-            //if matched before skip this
+            // If matched before, skip this.
             if ($this->matched === false)
             {
-                //prepare
+                // Prepare.
                 $pattern = $this->prepare(
                     str_replace(['/?', '/*'], [ $this->pattern['/?'], $this->pattern['/*'] ], $this->removeDuplSlash($this->group.$pattern))
                 );
 
-                //if matched
+                // If matched.
                 $method = count($method) > 0 ? in_array($this->req->method, $method) : true;
                 if ( $method && $this->matched($pattern) )
                 {
@@ -137,12 +137,12 @@ class Route
     }
 
     /**
-     * Group of routes
+     * Group of routes.
      *
-     * @param   string|array    $group
-     * @param   callable        $callback
+     * @param string|array    $group
+     * @param callable        $callback
      *
-     * @return  $this
+     * @return $this
      */
     public function group($group, callable $callback) {
         if ( is_array($group) ) {
@@ -158,11 +158,11 @@ class Route
         $this->matched( $this->prepare($group, false), false );
 
         $this->currentGroup = $group;
-        // add this group and sub groups to append to route uri
+        // Add this group and sub-groups to append to route uri.
         $this->group     .= $group;
-        // bind to Route Class
+        // Bind to Route Class.
         $callback         = $callback->bindTo($this);
-        // Call with args
+        // Call with args.
         call_user_func_array($callback, $this->bindArgs($this->pramsGroup, $this->matchedArgs));
 
         $this->isGroup     = false;
@@ -173,12 +173,12 @@ class Route
     }
 
     /**
-     * Bind args and parameters
+     * Bind args and parameters.
      *
-     * @param   array    $pram
-     * @param   array    $args
+     * @param array    $pram
+     * @param array    $args
      *
-     * @return  array
+     * @return array
      */
     protected function bindArgs(array $pram, array $args)
     {
@@ -205,30 +205,30 @@ class Route
         return $newArgs;
     }
     /**
-     * register a parameter name with validation from route uri
+     * Register a parameter name with validation from route uri.
      *
-     * @param   string      $uri
-     * @param   bool        $isGroup
+     * @param string      $uri
+     * @param bool        $isGroup
      *
-     * @return  $patt
+     * @return $patt
      */
     protected function namedParameters($uri, $isGroup = false)
     {
-        //reset pattern and parameters to empty array
+        // Reset pattern and parameters to empty array.
         $this->patt  = [];
         $this->prams = [];
 
-        // replace named parameters to regx pattern
+        // Replace named parameters to regex pattern.
         return preg_replace_callback('/\/\{([a-z-0-9]+)\}\??(:\(?[^\/]+\)?)?/i', function($m) use ($isGroup)
         {
-            //check if validation is seted and exists or not
+            // Check whether validation has been set and whether it exists.
             if (isset($m[2])) {
                 $rep = substr($m[2], 1);
                 $patt = isset($this->pattern[ $rep ]) ? $this->pattern[ $rep ] : '/'.$rep;
             } else {
                 $patt = $this->pattern['/?'];
             }
-            //check if parameter is optional
+            // Check whether parameter is optional.
             if (strpos($m[0], '?') !== false) {
                 $patt = str_replace('/(', '(/', $patt).'?';
             }
@@ -247,16 +247,16 @@ class Route
     }
 
     /**
-     * prepare a regx pattern
+     * Prepare a regex pattern.
      *
-     * @param   string      $patt
-     * @param   bool        $strict
+     * @param string      $patt
+     * @param bool        $strict
      *
-     * @return  string
+     * @return string
      */
     protected function prepare($patt, $strict = true)
     {
-        //fix group if has optional path on start
+        // Fix group if it has an optional path on start
         if(substr($patt, 0, 3) == '/(/'){
             $patt = substr($patt, 1);
         }
@@ -265,12 +265,12 @@ class Route
     }
 
     /**
-     * whether the current route matches the specified pattern or not
+     * Checks whether the current route matches the specified pattern.
      *
-     * @param   string  $patt
-     * @param   bool    $call
+     * @param string  $patt
+     * @param bool    $call
      *
-     * @return  bool
+     * @return bool
      */
     protected function matched($patt, $call = true)
     {
@@ -286,42 +286,42 @@ class Route
     }
 
     /**
-     * Remove the duplicated slashes
+     * Remove duplicate slashes.
      *
-     * @param   string     $uri
+     * @param string     $uri
      *
-     * @return  string
+     * @return string
      */
     protected function removeDuplSlash($uri) {
         return preg_replace('/\/+/', '/', '/'.$uri);
     }
 
     /**
-     * trim the slashes
+     * Trim slashes.
      *
-     * @param   string     $uri
+     * @param string     $uri
      *
-     * @return  string
+     * @return string
      */
     protected function trimSlash($uri) {
         return trim($uri, '/');
     }
 
     /**
-     * Add pattern to named parameters list
+     * Add pattern to the named parameters list.
      *
-     * @param   array    $patt key value  i.e ['key' => '/([a-z0-9_]+)']
+     * @param array    $patt key value  i.e ['key' => '/([a-z0-9_]+)']
      */
     public function addPattern(array $patt) {
         $this->pattern = array_merge($this->pattern, $patt);
     }
 
     /**
-     * Set a route name
+     * Set a route name.
      *
-     * @param   string  $name
+     * @param string  $name
      *
-     * @return  $this
+     * @return $this
      */
      public function _as($name)
      {
@@ -333,7 +333,7 @@ class Route
 
         $patt = $this->patt;
         $pram = $this->prams;
-        // merge group parameters with route parameters
+        // Merge group parameters with route parameters.
         if($this->isGroup){
             $patt = array_merge($this->pattGroup, $patt);
             if(count($patt) > count($pram)){
@@ -350,7 +350,7 @@ class Route
 
         $name = str_replace('/', '.', $name);
 
-        // replace pattern to named parameters
+        // Replace pattern to named parameters.
         $replaced = $this->group.$this->currentUri;
         foreach ($patt as $k => $v) {
             $pos = strpos($replaced, $v);
@@ -365,9 +365,9 @@ class Route
     }
 
     /**
-     * Set a group name
+     * Set a group name.
      *
-     * @param   string      $as
+     * @param string      $as
      */
     public function setGroupAs($as)
     {
@@ -375,9 +375,9 @@ class Route
     }
 
     /**
-     * Get a group name
+     * Get a group name.
      *
-     * @return  string
+     * @return string
      */
     public function getGroupAs()
     {
@@ -385,12 +385,12 @@ class Route
     }
 
     /**
-     * register a new listener into the specified event
+     * Register a new listener into the specified event.
      *
-     * @param   string      $name
-     * @param   array       $args
+     * @param string      $name
+     * @param array       $args
      *
-     * @return  string|null
+     * @return string|null
      */
     public function getRoute($name, array $args = [])
     {
@@ -408,7 +408,7 @@ class Route
     }
 
     /**
-     * Run and get a response
+     * Run and get a response.
      */
     public function end()
     {
@@ -424,12 +424,12 @@ class Route
     }
 
     /**
-     * Call a route has been matched
+     * Call a route that has been matched.
      *
-     * @param   string\array    $callback
-     * @param   array           $args
+     * @param string\array    $callback
+     * @param array           $args
      *
-     * @return  string
+     * @return string
      */
     protected function callback($callback, array $args = [])
     {
@@ -437,7 +437,7 @@ class Route
         {
             if ( is_callable($callback) && $callback instanceof \Closure)
             {
-                //Set new object and append the callback with some data
+                // Set new object and append the callback with some data.
                 $o = new \ArrayObject($args);
                 $o->app = App::instance();
                 $callback = $callback->bindTo($o);
@@ -466,18 +466,18 @@ class Route
                 array_shift($args);
             }
 
-            //Finaly call the method
+            // Finally, call the method.
             return call_user_func_array($callback, $args);
         }
     }
 
     /**
-     * magic call
+     * Magic call.
      *
-     * @param   string   $method
-     * @param   array    $args
+     * @param string   $method
+     * @param array    $args
      *
-     * @return  mixed
+     * @return mixed
      */
     public function __call($method, $args)
     {
@@ -488,7 +488,7 @@ class Route
                 array_unshift($args, []);
                 return call_user_func_array([$this, 'route'], $args);
         }
-        //check if dynamic method i.e (get - post - get_post)
+        // Check whether the method is dynamic (i.e.: get, post, get_post).
         $method = explode('_', $method);
         $exists = [];
         foreach ($method as $v) {
@@ -507,10 +507,10 @@ class Route
     }
 
     /**
-     * Set new variables and functions to this class
+     * Set new variables and functions to this class.
      *
-     * @param   string      $k
-     * @param   mixed       $v
+     * @param string      $k
+     * @param mixed       $v
      */
     public function __set($k, $v)
     {
