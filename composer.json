@@ -1,0 +1,19 @@
+{
+    "name": "NeZaMy/Route",
+    "type": "library",
+    "description": "Route - Fast, flexible routing for PHP, enabling you to quickly and easily build RESTful web applications.",
+    "keywords": ["route", "restful", "api", "justframework"],
+    "homepage": "https://nezamy.com/Route",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mahmoud Elnezamy",
+            "email": "mahmoud@nezamy.com",
+            "homepage": "http://nezamy.com",
+            "role": "Full Stack Web Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    }
+}
