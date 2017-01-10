@@ -1,5 +1,5 @@
 {
-    "name": "NeZaMy/Route",
+    "name": "nezamy/route",
     "type": "library",
     "description": "Route - Fast, flexible routing for PHP, enabling you to quickly and easily build RESTful web applications.",
     "keywords": ["route", "restful", "api", "justframework"],
