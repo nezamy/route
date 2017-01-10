@@ -9,8 +9,11 @@ Routing is done by matching a URL pattern with a callback function.
 ```php
 
 <?php
+
 require 'system/startup.php';
+
 $route = $app->route;
+
 $route->any('/', function(){
     echo 'Hello World';
 });
