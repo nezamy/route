@@ -15,5 +15,10 @@
     ],
     "require": {
         "php": ">=5.4.0"
+    },
+    "autoload": {
+        "classmap": [
+            "system/startup.php"
+        ]
     }
 }
