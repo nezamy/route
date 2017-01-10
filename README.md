@@ -7,7 +7,6 @@ Route - Fast, flexible routing for PHP, enabling you to quickly and easily build
 Routing is done by matching a URL pattern with a callback function.
 ### index.php
 ```php
-
 <?php
 
 require 'system/startup.php';
