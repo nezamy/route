@@ -76,6 +76,12 @@ $route->get_post('/', function(){
     // Only GET and POST requests
 });
 ```
+## Multiple Routing (All in one)
+```php
+$route->get(['/', 'index', 'home'], function(){
+    // Will match 3 page in one
+});
+```
 ## Parameters
 ```php
 // This example will match any page name
