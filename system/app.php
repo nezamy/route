@@ -48,14 +48,14 @@ class App
     {
         spl_autoload_register(function($className)
         {
-            $namespace = strtolower(str_replace("\\",DS,__NAMESPACE__));
-            $className = str_replace("\\",DS,$className);
+            $namespace = strtolower(str_replace("\\", DS, __NAMESPACE__));
+            $className = str_replace("\\", DS, $className);
             $classNameOnly = basename($className);
             $className = strtolower(substr($className, 0, -strlen($classNameOnly))) . lcfirst($classNameOnly);
 
-            if ( is_file($class = BASE_PATH . (empty($namespace) ? "" : $namespace."/"). "{$className}.php") ) {
+            if (is_file($class = BASE_PATH . (empty($namespace) ? "" : $namespace . "/") . "{$className}.php")) {
                 return include_once($class);
-            } elseif (is_file($class = BASE_PATH ."{$className}.php")) {
+            } elseif (is_file($class = BASE_PATH . "{$className}.php")) {
                 return include_once($class);
             }
         });
