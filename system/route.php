@@ -23,7 +23,7 @@ class Route
     /**
      * Named parameters list.
      */
-    protected $pattern      = [
+    protected $pattern = [
         '/*'                => '/(.*)',
         '/?'                => '/([^\/]+)',
         'int'               => '/([0-9]+)',
@@ -77,10 +77,10 @@ class Route
      *
      * @return $this
      */
-    public function route (array $method, $uri, $callback, $options = [])
+    public function route(array $method, $uri, $callback, $options = [])
     {
-        if ( is_array($uri) ) {
-            foreach ( $uri as $u ) {
+        if (is_array($uri)) {
+            foreach ($uri as $u) {
                 $this->route($method, $u, $callback, $options);
 
             }
@@ -89,12 +89,12 @@ class Route
 
         $options = array_merge(['ajaxOnly' => false, 'continu' => false], $options);
 
-        if($uri != '/'){
-            $uri = $this->removeDuplSlash($uri).'/';
+        if ($uri != '/') {
+            $uri = $this->removeDuplSlash($uri) . '/';
         }
 
         // Replace named uri param to regex pattern.
-        $pattern  = $this->namedParameters($uri);
+        $pattern = $this->namedParameters($uri);
 
         // Clean uri for route name.
         // $this->currentUri = trim( str_replace($this->patt, '', $pattern) ,'/').'/';
@@ -107,14 +107,14 @@ class Route
             {
                 // Prepare.
                 $pattern = $this->prepare(
-                    str_replace(['/?', '/*'], [ $this->pattern['/?'], $this->pattern['/*'] ], $this->removeDuplSlash($this->group.$pattern))
+                    str_replace(['/?', '/*'], [$this->pattern['/?'], $this->pattern['/*']], $this->removeDuplSlash($this->group . $pattern))
                 );
 
                 // If matched.
                 $method = count($method) > 0 ? in_array($this->req->method, $method) : true;
-                if ( $method && $this->matched($pattern) )
+                if ($method && $this->matched($pattern))
                 {
-                    if($this->isGroup){
+                    if ($this->isGroup) {
                         $this->prams = array_merge($this->pramsGroup, $this->prams);
                     }
 
@@ -123,7 +123,7 @@ class Route
                     $this->matchedPath   = $this->currentUri;
                     $this->routeCallback = $callback;
 
-                    if($options['continu']){
+                    if ($options['continu']) {
                         $this->callback($this->routeCallback, $this->req->args);
                         $this->routeCallback = $this->matched = false;
                     }
@@ -143,17 +143,17 @@ class Route
      * @return $this
      */
     public function group($group, callable $callback) {
-        if ( is_array($group) ) {
-            foreach ( $group as $p ) {
+        if (is_array($group)) {
+            foreach ($group as $p) {
                 $this->group($p, $callback);
             }
             return $this;
         }
 
-        $group = $this->removeDuplSlash($group.'/');
+        $group = $this->removeDuplSlash($group . '/');
         $group = $this->namedParameters($group, true);
 
-        $this->matched( $this->prepare($group, false), false );
+        $this->matched($this->prepare($group, false), false);
 
         $this->currentGroup = $group;
         // Add this group and sub-groups to append to route uri.
@@ -190,13 +190,13 @@ class Route
 
             if (isset($args[0]) && count($args) == 1)
             {
-                foreach (explode('/', '/'.$args[0]) as $arg) {
+                foreach (explode('/', '/' . $args[0]) as $arg) {
                     $newArgs[] = $arg;
                 }
                 $this->fullArg = $newArgs[0] = $args[0];
             }
             // pre($args);
-            if(count($args)){
+            if (count($args)) {
                 $newArgs = array_merge($newArgs, $args);
             }
         }
@@ -222,13 +222,13 @@ class Route
             // Check whether validation has been set and whether it exists.
             if (isset($m[2])) {
                 $rep = substr($m[2], 1);
-                $patt = isset($this->pattern[ $rep ]) ? $this->pattern[ $rep ] : '/'.$rep;
+                $patt = isset($this->pattern[$rep]) ? $this->pattern[$rep] : '/' . $rep;
             } else {
                 $patt = $this->pattern['/?'];
             }
             // Check whether parameter is optional.
             if (strpos($m[0], '?') !== false) {
-                $patt = str_replace('/(', '(/', $patt).'?';
+                $patt = str_replace('/(', '(/', $patt) . '?';
             }
 
             if ($isGroup) {
@@ -255,11 +255,11 @@ class Route
     protected function prepare($patt, $strict = true)
     {
         // Fix group if it has an optional path on start
-        if(substr($patt, 0, 3) == '/(/'){
+        if (substr($patt, 0, 3) == '/(/') {
             $patt = substr($patt, 1);
         }
 
-        return  '~^' .$patt. ($strict ? '$' : '') .'~i';
+        return  '~^' . $patt . ($strict ? '$' : '') . '~i';
     }
 
     /**
@@ -272,12 +272,12 @@ class Route
      */
     protected function matched($patt, $call = true)
     {
-        if ( preg_match($patt, $this->req->path, $m) ) {
+        if (preg_match($patt, $this->req->path, $m)) {
             if ($call) {
                 $this->matched = true;
             }
             array_shift($m);
-            $this->matchedArgs =  array_map([$this, 'trimSlash'], $m);
+            $this->matchedArgs = array_map([$this, 'trimSlash'], $m);
             return true;
         }
         return false;
@@ -291,7 +291,7 @@ class Route
      * @return string
      */
     protected function removeDuplSlash($uri) {
-        return preg_replace('/\/+/', '/', '/'.$uri);
+        return preg_replace('/\/+/', '/', '/' . $uri);
     }
 
     /**
@@ -321,20 +321,20 @@ class Route
      *
      * @return $this
      */
-     public function _as($name)
-     {
+        public function _as($name)
+        {
         $name = strtolower($name);
         if (array_key_exists($name, $this->routes))
         {
-            throw new \Exception ("Route name ($name) already registered.");
+            throw new \Exception("Route name ($name) already registered.");
         }
 
         $patt = $this->patt;
         $pram = $this->prams;
         // Merge group parameters with route parameters.
-        if($this->isGroup){
+        if ($this->isGroup) {
             $patt = array_merge($this->pattGroup, $patt);
-            if(count($patt) > count($pram)){
+            if (count($patt) > count($pram)) {
                 $pram = array_merge($this->pramsGroup, $pram);
             }
         }
@@ -342,14 +342,14 @@ class Route
         // :param
         if ($cprams = count($pram)) {
             foreach ($pram as $k => $v) {
-                $pram[$k] = '/:'.$v;
+                $pram[$k] = '/:' . $v;
             }
         }
 
         $name = str_replace('/', '.', $name);
 
         // Replace pattern to named parameters.
-        $replaced = $this->group.$this->currentUri;
+        $replaced = $this->group . $this->currentUri;
         foreach ($patt as $k => $v) {
             $pos = strpos($replaced, $v);
             if ($pos !== false) {
@@ -357,7 +357,7 @@ class Route
             }
         }
 
-        $this->routes[$name] = ltrim( $this->removeDuplSlash(strtolower($replaced)), '/');
+        $this->routes[$name] = ltrim($this->removeDuplSlash(strtolower($replaced)), '/');
 
         return $this;
     }
@@ -378,7 +378,7 @@ class Route
             $route = $this->routes[$name];
 
             foreach ($args as $k => $v) {
-                $route = str_replace(':'.$k, $v, $route);
+                $route = str_replace(':' . $k, $v, $route);
             }
             return $route;
         }
@@ -413,21 +413,20 @@ class Route
     {
         if (isset($callback))
         {
-            if ( is_callable($callback) && $callback instanceof \Closure)
+            if (is_callable($callback) && $callback instanceof \Closure)
             {
                 // Set new object and append the callback with some data.
                 $o = new \ArrayObject($args);
                 $o->app = App::instance();
                 $callback = $callback->bindTo($o);
-            }
-            elseif (is_string($callback) && strpos($callback, '@') !== false)
+            } elseif (is_string($callback) && strpos($callback, '@') !== false)
             {
                 $fixcallback       = explode('@', $callback, 2);
                 $this->Controller  = $fixcallback[0];
 
-                if ( is_callable(
-                    $callback     = [ $fixcallback[0], (isset($fixcallback[1]) ? $fixcallback[1] : 'index') ]
-                ) ) {
+                if (is_callable(
+                    $callback     = [$fixcallback[0], (isset($fixcallback[1]) ? $fixcallback[1] : 'index')]
+                )) {
                     $this->Method = $callback[1];
                 } else {
                     throw new \Exception("Callable error on {$callback[0]} -> {$callback[1]} !");
@@ -436,11 +435,11 @@ class Route
                 throw new \Exception("Callable error on {$callback[0]} -> {$callback[1]} try with namespace");
             }
 
-            if(is_array($callback) && !is_object($callback[0])){
+            if (is_array($callback) && !is_object($callback[0])) {
                 $callback[0] = new $callback[0];
             }
 
-            if(isset($args[0]) && $args[0] == $this->fullArg){
+            if (isset($args[0]) && $args[0] == $this->fullArg) {
                 array_shift($args);
             }
 
@@ -470,7 +469,7 @@ class Route
         $method = explode('_', $method);
         $exists = [];
         foreach ($method as $v) {
-            if (in_array($v = strtoupper($v), ['POST', 'GET', 'PUT','PATCH','DELETE'])) {
+            if (in_array($v = strtoupper($v), ['POST', 'GET', 'PUT', 'PATCH', 'DELETE'])) {
                 $exists[] = $v;
             }
         }

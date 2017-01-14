@@ -34,9 +34,9 @@ class Request
         $parent = dirname($script);
 
         // Fix path if not runing on domain or local domain.
-        if ( stripos($uri, $script) !== false ) {
+        if (stripos($uri, $script) !== false) {
             $this->path = substr($uri, strlen($script));
-        } elseif ( stripos($uri, $parent) !== false ){
+        } elseif (stripos($uri, $parent) !== false) {
             $this->path = substr($uri, strlen($parent));
         } else {
             $this->path = $uri;
@@ -49,14 +49,14 @@ class Request
         $this->port         = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : null;
         $this->protocol     = $this->secure ? 'https' : 'http';
         $this->url          = strtolower($this->protocol . '://' . $_SERVER['SERVER_NAME']) . '/';
-        $this->curl         = rtrim($this->url,'/').$this->path;
+        $this->curl         = rtrim($this->url, '/') . $this->path;
         $this->extension    = pathinfo($this->path, PATHINFO_EXTENSION);
         $this->headers      = call_user_func(function()
         {
             $r = [];
-            foreach ( $_SERVER as $k => $v )
+            foreach ($_SERVER as $k => $v)
             {
-                if ( stripos($k, 'http_') !== false ) {
+                if (stripos($k, 'http_') !== false) {
                     $r[strtolower(substr($k, 5))] = $v;
                 }
             }
@@ -66,7 +66,7 @@ class Request
         $this->query        = $_GET;
         $this->args         = [];
         foreach ($this->query as $k => $v) {
-            $this->query[$k] = preg_replace( '/\/+/', '/', str_replace(['..', './'], ['', '/'], $v) );
+            $this->query[$k] = preg_replace('/\/+/', '/', str_replace(['..', './'], ['', '/'], $v));
         }
 
         $input              = json_decode(file_get_contents("php://input"), true);
@@ -96,7 +96,7 @@ class Request
      *
      * @return string
      */
-    public function ip ()
+    public function ip()
     {
         if (isset($_SERVER["HTTP_CLIENT_IP"]))
             $ip = $_SERVER["HTTP_CLIENT_IP"];
@@ -113,7 +113,7 @@ class Request
         else
             $ip = getenv("REMOTE_ADDR");
 
-        if(!filter_var($ip, FILTER_VALIDATE_IP))
+        if (!filter_var($ip, FILTER_VALIDATE_IP))
             return 'UNKNOWN';
 
         return $ip;
@@ -126,18 +126,19 @@ class Request
      */
     public function browser()
     {
-        if (strpos($this->server['HTTP_USER_AGENT'], 'Opera') || strpos($this->server['HTTP_USER_AGENT'], 'OPR/'))
-            return 'Opera';
-        elseif (strpos($this->server['HTTP_USER_AGENT'], 'Edge'))
-            return 'Edge';
-        elseif (strpos($this->server['HTTP_USER_AGENT'], 'Chrome'))
-            return 'Chrome';
-        elseif (strpos($this->server['HTTP_USER_AGENT'], 'Safari'))
-            return 'Safari';
-        elseif (strpos($this->server['HTTP_USER_AGENT'], 'Firefox'))
-            return 'Firefox';
-        elseif (strpos($this->server['HTTP_USER_AGENT'], 'MSIE') || strpos($this->server['HTTP_USER_AGENT'], 'Trident/7'))
-            return 'Internet Explorer';
+        if (strpos($this->server['HTTP_USER_AGENT'], 'Opera') || strpos($this->server['HTTP_USER_AGENT'], 'OPR/')) {
+                    return 'Opera';
+        } elseif (strpos($this->server['HTTP_USER_AGENT'], 'Edge')) {
+                    return 'Edge';
+        } elseif (strpos($this->server['HTTP_USER_AGENT'], 'Chrome')) {
+                    return 'Chrome';
+        } elseif (strpos($this->server['HTTP_USER_AGENT'], 'Safari')) {
+                    return 'Safari';
+        } elseif (strpos($this->server['HTTP_USER_AGENT'], 'Firefox')) {
+                    return 'Firefox';
+        } elseif (strpos($this->server['HTTP_USER_AGENT'], 'MSIE') || strpos($this->server['HTTP_USER_AGENT'], 'Trident/7')) {
+                    return 'Internet Explorer';
+        }
     }
 
     /**
@@ -147,12 +148,13 @@ class Request
      */
     public function platform()
     {
-        if (preg_match('/linux/i', $this->server['HTTP_USER_AGENT']))
-            return 'linux';
-        elseif (preg_match('/macintosh|mac os x/i', $this->server['HTTP_USER_AGENT']))
-            return 'mac';
-        elseif (preg_match('/windows|win32/i', $this->server['HTTP_USER_AGENT']))
-            return 'windows';
+        if (preg_match('/linux/i', $this->server['HTTP_USER_AGENT'])) {
+                    return 'linux';
+        } elseif (preg_match('/macintosh|mac os x/i', $this->server['HTTP_USER_AGENT'])) {
+                    return 'mac';
+        } elseif (preg_match('/windows|win32/i', $this->server['HTTP_USER_AGENT'])) {
+                    return 'windows';
+        }
     }
 
     /**
@@ -172,8 +174,8 @@ class Request
         );
 
         // Return true if mobile User Agent is detected.
-        foreach($aMobileUA as $sMobileKey => $sMobileOS){
-            if(preg_match($sMobileKey, $_SERVER['HTTP_USER_AGENT'])){
+        foreach ($aMobileUA as $sMobileKey => $sMobileOS) {
+            if (preg_match($sMobileKey, $_SERVER['HTTP_USER_AGENT'])) {
                 return true;
             }
         }
@@ -190,10 +192,10 @@ class Request
      * @return mixed
      */
     public function __call($method, $args)
-	{
+    {
         return  isset($this->{$method}) && is_callable($this->{$method})
                 ? call_user_func_array($this->{$method}, $args) : null;
-	}
+    }
 
     /**
      * Set new variables and functions to this class.
@@ -201,8 +203,8 @@ class Request
      * @param string      $k
      * @param mixed    $v
      */
-	public function __set($k, $v)
-	{
-		$this->{$k} = $v instanceof \Closure ? $v->bindTo($this) : $v;
-	}
+    public function __set($k, $v)
+    {
+        $this->{$k} = $v instanceof \Closure ? $v->bindTo($this) : $v;
+    }
 }

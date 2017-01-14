@@ -24,7 +24,7 @@ class App
     /**
      * Constructor - Define some variables.
      */
-    public function __construct(){
+    public function __construct() {
         $this->autoload();
     }
 
@@ -50,14 +50,14 @@ class App
         {
             $namespace = strtolower(str_replace("\\",DS,__NAMESPACE__));
             $className = str_replace("\\",DS,$className);
-			$classNameOnly = basename($className);
-			$className = strtolower(substr($className, 0, -strlen($classNameOnly))) . lcfirst($classNameOnly);
+            $classNameOnly = basename($className);
+            $className = strtolower(substr($className, 0, -strlen($classNameOnly))) . lcfirst($classNameOnly);
 
             if ( is_file($class = BASE_PATH . (empty($namespace) ? "" : $namespace."/"). "{$className}.php") ) {
-               return include_once($class);
+                return include_once($class);
             } elseif (is_file($class = BASE_PATH ."{$className}.php")) {
                 return include_once($class);
-		   }
+            }
         });
     }
 
@@ -70,10 +70,10 @@ class App
      * @return mixed
      */
     public function __call($method, $args)
-	{
+    {
         return  isset($this->{$method}) && is_callable($this->{$method})
                 ? call_user_func_array($this->{$method}, $args) : null;
-	}
+    }
 
     /**
      * Set new variables and functions to this class.
@@ -81,8 +81,8 @@ class App
      * @param string      $k
      * @param mixed    $v
      */
-	public function __set($k, $v)
-	{
-		$this->{$k} = $v instanceof \Closure ? $v->bindTo($this) : $v;
-	}
+    public function __set($k, $v)
+    {
+        $this->{$k} = $v instanceof \Closure ? $v->bindTo($this) : $v;
+    }
 }
