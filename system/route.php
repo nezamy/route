@@ -46,10 +46,9 @@ class Route
         $this->group          = $this->matchedPath = '';
         $this->matched        = false;
         $this->pramsGroup     = $this->matchedArgs = $this->pattGroup = [];
-        $this->groupAs        = $this->fullArg = '';
+        $this->fullArg        = '';
         $this->isGroup        = false;
         $this->req            = $req;
-        $this->roles          = [];
         $this->bindedGroups   = $this->currentGroup = [];
         defined('URL') || define('URL', $req->url, TRUE);
 
@@ -123,7 +122,6 @@ class Route
 
                     $this->matchedPath   = $this->currentUri;
                     $this->routeCallback = $callback;
-                    $this->saveit[]      = $this->getGroupAs().$this->matchedPath;
 
                     if($options['continu']){
                         $this->callback($this->routeCallback, $this->req->args);
@@ -362,26 +360,6 @@ class Route
         $this->routes[$name] = ltrim( $this->removeDuplSlash(strtolower($replaced)), '/');
 
         return $this;
-    }
-
-    /**
-     * Set a group name.
-     *
-     * @param string      $as
-     */
-    public function setGroupAs($as)
-    {
-        $this->groupAs = $as;
-    }
-
-    /**
-     * Get a group name.
-     *
-     * @return string
-     */
-    public function getGroupAs()
-    {
-        return $this->groupAs;
     }
 
     /**
