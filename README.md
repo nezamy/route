@@ -32,6 +32,7 @@ $route->any('/', function() {
 
 $route->end();
 ```
+If using apache make sure the .htaccess file has exists beside index.php 
 
 ## How it works
 Routing is done by matching a URL pattern with a callback function.
