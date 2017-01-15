@@ -1,40 +1,66 @@
-# Route
+# Route v1.0
 Route - Fast, flexible routing for PHP, enabling you to quickly and easily build RESTful web applications.
 
-# Usage
+## Installation
 
-## How it works
-Routing is done by matching a URL pattern with a callback function.
-### index.php
+It's recommended that you use [Composer](https://getcomposer.org/) to install Route.
+
+```bash
+$ composer require nezamy/route
+```
+
+Route requires PHP 5.4.0 or newer.
+
+## Usage
+Create an index.php file with the following contents:
 ```php
 <?php
+define('DS', DIRECTORY_SEPARATOR, true);
+define('BASE_PATH', __DIR__ . DS, TRUE);
 
-require 'system/startup.php';
+require BASE_PATH.'vendor/autoload.php';
 
-$route = $app->route;
+$app            = System\App::instance();
+$app->request   = System\Request::instance();
+$app->route     = System\Route::instance($app->request);
 
-$route->any('/', function(){
+$route          = $app->route;
+
+$route->any('/', function() {
     echo 'Hello World';
-});
-
-$route->any('/about', function(){
-    echo 'About';
 });
 
 $route->end();
 ```
+
+## How it works
+Routing is done by matching a URL pattern with a callback function.
+
+### index.php
+```php
+$route->any('/', function() {
+    echo 'Hello World';
+});
+
+$route->any('/about', function() {
+    echo 'About';
+});
+
+```
+
 ### The callback can be any object that is callable. So you can use a regular function:
 ```php
-function pages(){
+function pages() {
     echo 'Page Content';
 }
 $route->get('/', 'pages');
 ```
+
 ### Or a class method:
 ```php
 class home
 {
-    function pages(){
+    function pages() {
         echo 'Home page Content';
     }
 }
@@ -47,64 +73,65 @@ $route->get('/', 'home@pages');
 ```
 ## Method Routing
 ```php
-$route->any('/', function(){
+$route->any('/', function() {
     // Any method requests
 });
 
-$route->get('/', function(){
+$route->get('/', function() {
     // Only GET requests
 });
 
-$route->post('/', function(){
+$route->post('/', function() {
     // Only POST requests
 });
 
-$route->put('/', function(){
+$route->put('/', function() {
     // Only PUT requests
 });
 
-$route->patch('/', function(){
+$route->patch('/', function() {
     // Only PATCH requests
 });
 
-$route->delete('/', function(){
+$route->delete('/', function() {
     // Only DELETE requests
 });
 
 // You can use multiple methods. Just add _ between method names
-$route->get_post('/', function(){
+$route->get_post('/', function() {
     // Only GET and POST requests
 });
 ```
 ## Multiple Routing (All in one)
 ```php
-$route->get(['/', 'index', 'home'], function(){
+$route->get(['/', 'index', 'home'], function() {
     // Will match 3 page in one
 });
 ```
 ## Parameters
 ```php
 // This example will match any page name
-$route->get('/?', function($page){
+$route->get('/?', function($page) {
     echo "you are in $page";
 });
 
 // This example will match anything after post/ - limited to 1 argument
-$route->get('/post/?', function($id){
+$route->get('/post/?', function($id) {
     // Will match anything like post/hello or post/5 ...
     // But not match /post/5/title
     echo "post id $id";
 });
 
 // more than parameters
-$route->get('/post/?/?', function($id, $title){
+$route->get('/post/?/?', function($id, $title) {
     echo "post id $id and title $title";
 });
 ```
+
 ### For “unlimited” optional parameters, you can do this:
 ```php
 // This example will match anything after blog/ - unlimited arguments
-$route->get('/blog/*', function(){
+$route->get('/blog/*', function() {
     // [$this] instanceof ArrayObject so you can get all args by getArrayCopy()
     pre($this->getArrayCopy());
     pre($this[1]);
@@ -114,7 +141,7 @@ $route->get('/blog/*', function(){
 ## Named Parameters
 You can specify named parameters in your routes which will be passed along to your callback function.
 ```php
-$route->get('/{username}/{page}', function($username, $page){
+$route->get('/{username}/{page}', function($username, $page) {
     echo "Username $username and Page $page <br>";
     // OR
     echo "Username {$this['username']} and Page {$this['page']}";
@@ -138,10 +165,11 @@ $route->addPattern([
 ]);
 
 // Now you can use named regex
-$route->get('/{username}:username/post/{id}:id', function($username, $id){
+$route->get('/{username}:username/post/{id}:id', function($username, $id) {
     echo "author $username post id $id";
 });
 ```
+
 ### Some named regex patterns already registered in routes
 ```php
 [
@@ -160,14 +188,14 @@ $route->get('/{username}:username/post/{id}:id', function($username, $id){
 You can specify named parameters that are optional for matching by adding (?)
 ```php
 $route->get('/post/{title}?:title/{date}?',
-function($title, $date){
-    if($title){
+function($title, $date) {
+    if ($title) {
         echo "<h1>$title</h1>";
     }else{
         echo "<h1>Posts List</h1>";
     }
 
-    if($date){
+    if ($date) {
         echo "<small>Published $date</small>";
     }
 });
@@ -177,12 +205,12 @@ function($title, $date){
 $route->group('/admin', function()
 {
     // /admin/
-    $this->get('/', function(){
+    $this->get('/', function() {
         echo 'welcome to admin panel';
     });
 
     // /admin/settings
-    $this->get('/settings', function(){
+    $this->get('/settings', function() {
         echo 'list of settings';
     });
 
@@ -190,18 +218,18 @@ $route->group('/admin', function()
     $this->group('/users', function()
     {
         // /admin/users
-        $this->get('/', function(){
+        $this->get('/', function() {
             echo 'list of users';
         });
 
         // /admin/users/add
-        $this->get('/add', function(){
+        $this->get('/add', function() {
             echo 'add new user';
         });
     });
 
     // Anything else
-    $this->any('/*', function(){
+    $this->any('/*', function() {
         pre("Page ( {$this->app->request->path} ) Not Found", 6);
     });
 });
@@ -213,11 +241,11 @@ $route->group('/{lang}?:isoCode2', function($lang)
 {
     $default = $lang;
 
-    if(!in_array($lang, ['ar', 'en'])){
+    if (!in_array($lang, ['ar', 'en'])) {
         $default = 'en';
     }
 
-    $this->get('/', function($lang) use($default){
+    $this->get('/', function($lang) use($default) {
         echo "lang in request is $lang<br>";
         echo "include page_{$default}.php";
     });
@@ -230,4 +258,4 @@ $route->group('/{lang}?:isoCode2', function($lang)
 });
 ```
 
-# Full examples will be available soon on http://nezamy.com/route
+# Full examples [here](http://nezamy.com/route)
