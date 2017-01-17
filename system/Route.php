@@ -431,8 +431,6 @@ class Route
                 } else {
                     throw new \Exception("Callable error on {$callback[0]} -> {$callback[1]} !");
                 }
-            } else {
-                throw new \Exception("Callable error on {$callback[0]} -> {$callback[1]} try with namespace");
             }
 
             if (is_array($callback) && !is_object($callback[0])) {
