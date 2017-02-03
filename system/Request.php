@@ -69,7 +69,12 @@ class Request
             $this->query[$k] = preg_replace('/\/+/', '/', str_replace(['..', './'], ['', '/'], $v));
         }
 
-        $input              = json_decode(file_get_contents("php://input"), true);
+        if ($this->headers['content_type'] == 'application/x-www-form-urlencoded') {
+            parse_str(file_get_contents("php://input"), $input);
+        } else {
+            $input          = json_decode(file_get_contents("php://input"), true);
+        }
+        
         $this->body         = is_array($input) ? $input : [];
         $this->body         = array_merge($this->body, $_POST);
         $this->files        = isset($_FILES) ? $_FILES : [];
