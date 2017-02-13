@@ -69,7 +69,7 @@ class Request
             $this->query[$k] = preg_replace('/\/+/', '/', str_replace(['..', './'], ['', '/'], $v));
         }
 
-        if ($this->headers['content_type'] == 'application/x-www-form-urlencoded') {
+        if (isset($this->headers['content_type']) && $this->headers['content_type'] == 'application/x-www-form-urlencoded') {
             parse_str(file_get_contents("php://input"), $input);
         } else {
             $input          = json_decode(file_get_contents("php://input"), true);
