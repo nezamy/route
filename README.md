@@ -2,6 +2,9 @@
 Route - Fast, flexible routing for PHP, enabling you to quickly and easily build RESTful web applications.
 
 ## Installation
+You can download it and using it without any changes.
+
+OR use Composer.
 
 It's recommended that you use [Composer](https://getcomposer.org/) to install Route.
 
@@ -12,6 +15,8 @@ $ composer require nezamy/route
 Route requires PHP 5.4.0 or newer.
 
 ## Usage
+Only if using composer create index.php in root.
+
 Create an index.php file with the following contents:
 ```php
 <?php
