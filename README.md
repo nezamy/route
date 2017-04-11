@@ -1,4 +1,4 @@
-# Route v1.0
+# Route v1.0.3
 Route - Fast, flexible routing for PHP, enabling you to quickly and easily build RESTful web applications.
 
 ## Installation
