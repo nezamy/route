@@ -87,7 +87,7 @@ class Route
             return $this;
         }
 
-        $options = array_merge(['ajaxOnly' => false, 'continu' => false], $options);
+        $options = array_merge(['ajaxOnly' => false, 'continu' => false], (array)$options);
 
         if ($uri != '/') {
             $uri = $this->removeDuplSlash($uri) . '/';
