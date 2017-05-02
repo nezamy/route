@@ -42,7 +42,7 @@ class Request
             $this->path = $uri;
         }
 
-        $this->path = preg_replace('/\/+/', '/', '/' . trim($this->path, '/') . '/');
+        $this->path = preg_replace('/\/+/', '/', '/' . trim(urldecode($this->path), '/') . '/');
         $this->hostname     = str_replace('/:(.*)$/', "", $_SERVER['HTTP_HOST']);
         $this->servername   = empty($_SERVER['SERVER_NAME']) ? $this->hostname : $_SERVER['SERVER_NAME'];
         $this->secure       = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on');
@@ -74,7 +74,7 @@ class Request
         } else {
             $input          = json_decode(file_get_contents("php://input"), true);
         }
-        
+
         $this->body         = is_array($input) ? $input : [];
         $this->body         = array_merge($this->body, $_POST);
         $this->files        = isset($_FILES) ? $_FILES : [];
