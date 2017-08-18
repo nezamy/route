@@ -78,7 +78,7 @@ class App
     public function __call($method, $args)
     {
         return  isset($this->{$method}) && is_callable($this->{$method})
-                ? call_user_func_array($this->{$method}, $args) : null;
+            ? call_user_func_array($this->{$method}, $args) : null;
     }
 
     /**

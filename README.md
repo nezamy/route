@@ -265,6 +265,5 @@ $route->group('/{lang}?:isoCode2', function($lang)
 ```
 
 # Full examples [here](http://nezamy.com/route)
-Support me [![Composer](https://az743702.vo.msecnd.net/cdn/kofi2.png?v=0)](https://ko-fi.com/nezamy)
-
-<a href='https://ko-fi.com/A518379C' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi2.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+## Support me 
+[<img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi2.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' />](https://ko-fi.com/nezamy)
