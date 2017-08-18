@@ -48,16 +48,22 @@ class App
     {
         spl_autoload_register(function($className)
         {
-            $namespace = strtolower(str_replace("\\", DS, __NAMESPACE__));
+            $currentNamespace = strtolower(str_replace("\\", DS, __NAMESPACE__));
+            $currentNamespace = empty($currentNamespace) ? "" : $currentNamespace . DS;
             $className = str_replace("\\", DS, $className);
             $classNameOnly = basename($className);
-            $className = strtolower(substr($className, 0, -strlen($classNameOnly))) . lcfirst($classNameOnly);
+            $namespace = strtolower(substr($className, 0, -strlen($classNameOnly)));
 
-            if (is_file($class = BASE_PATH . (empty($namespace) ? "" : $namespace . "/") . "{$className}.php")) {
+            if (is_file($class = BASE_PATH . $namespace . "{$classNameOnly}.php")) {
                 return include_once($class);
-            } elseif (is_file($class = BASE_PATH . "{$className}.php")) {
+            } elseif (is_file($class = BASE_PATH . $namespace . ucfirst($classNameOnly).'.php')) {
+                return include_once($class);
+            } elseif (is_file($class = BASE_PATH . $currentNamespace . $namespace . "{$classNameOnly}.php")) {
+                return include_once($class);
+            } elseif (is_file($class = BASE_PATH . $currentNamespace . $namespace . ucfirst($classNameOnly).'.php')) {
                 return include_once($class);
             }
+            return false;
         });
     }
 
