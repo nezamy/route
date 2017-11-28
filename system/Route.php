@@ -123,7 +123,9 @@ class Route
                 );
 
                 // If matched.
-                $method = count($method) > 0 ? in_array($this->req->method, $method) : true;
+                $method = count($method) > 0 ? (in_array($this->req->method, $method) ||
+                    in_array($this->req->server['REQUEST_METHOD'], $method) ||
+                    in_array($this->req->server['HTTP_ACCESS_CONTROL_REQUEST_METHOD'], $method)): true;
                 if ($method && $this->matched($pattern)) {
                     if ($this->isGroup) {
                         $this->prams = array_merge($this->pramsGroup, $this->prams);
