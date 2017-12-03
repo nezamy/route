@@ -674,7 +674,7 @@ class Route
         $method = explode('_', $method);
         $exists = [];
         foreach ($method as $v) {
-            if (in_array($v = strtoupper($v), ['POST', 'GET', 'PUT', 'PATCH', 'DELETE'])) {
+            if (in_array($v = strtoupper($v), ['POST', 'GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'])) {
                 $exists[] = $v;
             }
         }
