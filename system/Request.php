@@ -49,7 +49,13 @@ class Request
         $this->secure = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on');
         $this->port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : null;
         $this->protocol = $this->secure ? 'https' : 'http';
-        $this->url = strtolower($this->protocol . '://' . $this->servername) . '/';
+        $this->url = strtolower($this->protocol . '://' . $this->servername);
+        if($this->servername == 'localhost'){
+            $this->url = strtolower(
+                $this->protocol . '://' . $this->servername . 
+                str_replace($this->path, '', $this->server['REQUEST_URI'])
+            );
+        }
         $this->curl = rtrim($this->url, '/') . $this->path;
         $this->extension = pathinfo($this->path, PATHINFO_EXTENSION);
         $this->headers = call_user_func(function () {
