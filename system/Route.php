@@ -671,9 +671,9 @@ class Route
                 return call_user_func_array([$this, 'route'], $args);
         }
         // Check whether the method is dynamic (i.e.: get, post, get_post).
-        $method = explode('_', $method);
+        $methods = explode('_', $method);
         $exists = [];
-        foreach ($method as $v) {
+        foreach ($methods as $v) {
             if (in_array($v = strtoupper($v), ['POST', 'GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'])) {
                 $exists[] = $v;
             }
