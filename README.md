@@ -22,6 +22,12 @@ Create an index.php file with the following contents:
 <?php
 define('DS', DIRECTORY_SEPARATOR, true);
 define('BASE_PATH', __DIR__ . DS, TRUE);
+//Show errors
+//===================================
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+//===================================
 
 require BASE_PATH.'vendor/autoload.php';
 
