@@ -20,14 +20,7 @@ namespace System;
 class App
 {
     private static $instance;
-
-    /**
-     * Constructor - Define some variables.
-     */
-    public function __construct() {
-        $this->autoload();
-    }
-
+    
     /**
      * Singleton instance.
      *
@@ -39,32 +32,6 @@ class App
             static::$instance = new static;
         }
         return static::$instance;
-    }
-
-    /**
-     * Magic autoload.
-     */
-    public function autoload()
-    {
-        spl_autoload_register(function($className)
-        {
-            $currentNamespace = strtolower(str_replace("\\", DS, __NAMESPACE__));
-            $currentNamespace = empty($currentNamespace) ? "" : $currentNamespace . DS;
-            $className = str_replace("\\", DS, $className);
-            $classNameOnly = basename($className);
-            $namespace = strtolower(substr($className, 0, -strlen($classNameOnly)));
-
-            if (is_file($class = BASE_PATH . $namespace . "{$classNameOnly}.php")) {
-                return include_once($class);
-            } elseif (is_file($class = BASE_PATH . $namespace . ucfirst($classNameOnly).'.php')) {
-                return include_once($class);
-            } elseif (is_file($class = BASE_PATH . $currentNamespace . $namespace . "{$classNameOnly}.php")) {
-                return include_once($class);
-            } elseif (is_file($class = BASE_PATH . $currentNamespace . $namespace . ucfirst($classNameOnly).'.php')) {
-                return include_once($class);
-            }
-            return false;
-        });
     }
 
     /**
