@@ -15,7 +15,7 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "nezamy/support": "dev-master"
+        "nezamy/support": "^1.*"
     },
     "autoload": {
         "psr-4": {
