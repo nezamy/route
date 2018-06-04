@@ -7,7 +7,7 @@
  * @author      Mahmoud Elnezamy <http://nezamy.com>
  * @link        http://justframework.com
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
- * @version     1.0.0
+ * @version     1.2.0
  */
 
 namespace System;
