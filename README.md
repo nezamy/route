@@ -1,4 +1,4 @@
-# Route v1.1.0
+# Route v1.2.0
 Route - Fast, flexible routing for PHP, enabling you to quickly and easily build RESTful web applications.
 
 ## Installation
@@ -268,6 +268,32 @@ $route->group('/{lang}?:isoCode2', function($lang)
         pre($this->app->request->args);
     });
 });
+```
+
+### Middleware
+```php
+
+$route->use(function (){
+    $req = app('request');
+    pre('Do something before all routes', 3);
+});
+
+$route->before('/', function (){
+    pre('Do something before all routes', 4);
+});
+
+$route->before('/*!admin', function (){
+    pre('Do something before all routes except admin', 4);
+});
+
+$route->before('/admin|home', function (){
+    pre('Do something before admin and home only ', 4);
+});
+
+$route->after('/admin|home', function (){
+    pre('Do something after admin and home only ', 4);
+});
+
 ```
 
 # Full examples [here](http://nezamy.com/route)
