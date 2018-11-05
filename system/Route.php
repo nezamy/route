@@ -604,7 +604,10 @@ class Route
             print('<h1>404 Not Found</h1>');
         }
 
-        ob_end_flush();
+        if (ob_get_length()) {
+            ob_end_flush();
+        }
+
         exit;
     }
 
