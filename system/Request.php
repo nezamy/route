@@ -123,6 +123,10 @@ class Request
         } else {
             $ip = getenv("REMOTE_ADDR");
         }
+        
+        if(strpos($ip, ',') !== false){
+            $ip = explode(',', $ip)[0];
+        }
 
         if (!filter_var($ip, FILTER_VALIDATE_IP)) {
             return 'unknown';
