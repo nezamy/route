@@ -46,7 +46,7 @@ class Request
         $this->path = preg_replace('/\/+/', '/', '/' . trim(urldecode($this->path), '/') . '/');
         $this->hostname = str_replace('/:(.*)$/', "", $_SERVER['HTTP_HOST']);
         $this->servername = empty($_SERVER['SERVER_NAME']) ? $this->hostname : $_SERVER['SERVER_NAME'];
-        $this->secure = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on');
+        $this->secure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' || isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https';
         $this->port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : null;
         $this->protocol = $this->secure ? 'https' : 'http';
         $this->url = strtolower($this->protocol . '://' . $this->servername);
