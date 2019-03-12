@@ -69,7 +69,7 @@ class Route
     public function __construct(Request $req)
     {
         $this->req = $req;
-        defined('URL') || define('URL', $req->url, TRUE);
+        defined('URL') || define('URL', $req->url);
     }
 
     /**
