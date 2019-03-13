@@ -599,7 +599,7 @@ class Route
                 $this->callback($call, $this->req->args);
             }
             count($this->after) && $this->emit($this->after);
-        } else {
+        } else if($this->req->method != 'OPTIONS'){
             http_response_code(404);
             print('<h1>404 Not Found</h1>');
         }
