@@ -59,6 +59,8 @@ class App
                 return include_once($class);
             } elseif (is_file($class = BASE_PATH . $namespace . lcfirst($classNameOnly) . '.php')) {
                 return include_once($class);
+            }elseif (is_file($class = BASE_PATH . strtolower($namespace) . lcfirst($classNameOnly) . '.php')) {
+                return include_once($class);
             }
             return false;
         });
