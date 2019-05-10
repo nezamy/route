@@ -20,8 +20,8 @@ Only if using composer create index.php in root.
 Create an index.php file with the following contents:
 ```php
 <?php
-define('DS', DIRECTORY_SEPARATOR, true);
-define('BASE_PATH', __DIR__ . DS, TRUE);
+define('DS', DIRECTORY_SEPARATOR);
+define('BASE_PATH', __DIR__ . DS);
 //Show errors
 //===================================
 ini_set('display_errors', 1);
