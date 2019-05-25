@@ -262,9 +262,8 @@ class Route
                 if (isset($split[0]) && $split[0] == 'Index') {
                     $fullUri = $uri;
                 }
-
-                if (in_array($request, ['POST', 'GET', 'PUT','PATCH','DELETE']))
-                    $this->route([$request], $fullUri, $call, $options)->_as($as);
+                $methods = explode('_', $request);
+                $this->route($request, $fullUri, $call, $options)->_as($as);
             }
         } else {
             throw new \Exception("Not found Controller {$controller} try with namespace");
