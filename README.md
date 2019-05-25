@@ -1,4 +1,4 @@
-# Route v1.2.4
+# Route v1.2.6
 Route - Fast, flexible routing for PHP, enabling you to quickly and easily build RESTful web applications.
 
 ## Installation
