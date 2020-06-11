@@ -11,6 +11,8 @@ It's recommended that you use [Composer](https://getcomposer.org/) to install Ro
 ```bash
 $ composer require nezamy/route
 ```
+Or if you looking for ready template for using this route Go to https://github.com/nezamy/just
+
 
 Route requires PHP 5.4.0 or newer.
 
