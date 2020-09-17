@@ -22,6 +22,5 @@
             "System\\": "system"
         },
         "files": ["system/function.php"]
-    },
-    "minimum-stability": "dev"
+    }
 }
