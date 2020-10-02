@@ -1,4 +1,4 @@
-# Route v2.0-beta
+# Route v2.0
 Route - Fast, flexible routing for PHP, enabling you to quickly and easily build RESTful web applications.
 
 ## Installation
@@ -16,20 +16,25 @@ Only if using composer create index.php in root.
 Create an index.php file with the following contents:
 ```php
 <?php declare(strict_types=1);
-use Just\Routing\Router;
+
 define('DS', DIRECTORY_SEPARATOR);
 define('BASE_PATH', __DIR__ . DS);
 //Show errors
 //===================================
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 //===================================
 
 require BASE_PATH.'vendor/autoload.php';
+$request = new Just\Http\GlobalRequest;
+$response = new Just\Http\Response;
+$route = new Just\Routing\Router($request, $response);
+container()->set(Just\Http\Request::class, $request);
+container()->set(Just\Http\Response::class, $response);
+container()->set(Just\Routing\Router::class, $route);
 
 try {
-    $route = container()->get(Router::class);
     include 'app/routes.php';
     $output = $route->run();
 
