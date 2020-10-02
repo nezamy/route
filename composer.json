@@ -18,15 +18,7 @@
       "role": "Full Stack Web Developer"
     }
   ],
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../di",
-            "options": {
-                "symlink": true
-            }
-        }
-    ],
+
   "autoload": {
     "psr-4": {
       "Just\\": "src/",
@@ -45,7 +37,7 @@
     "php": ">=7.4",
     "ext-json": "*",
     "ext-mbstring": "*",
-    "nezamy/di": "dev-main"
+    "nezamy/di": "^2.*"
   },
   "require-dev": {
     "phpunit/phpunit": "^7.5 || ^8.5",
