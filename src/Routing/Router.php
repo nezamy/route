@@ -335,7 +335,7 @@ class Router
                 continue;
             }
 
-            if ($uri->isStatic() && $uri->eq($requestUri)) {
+            if ($uri->isStatic() && $uri->eq((string) $requestUri)) {
                 $matched = true;
             } else {
                 $pattern = $this->parser->parse((string) $uri);
