@@ -1,27 +1,22 @@
-# Route v1.2.6
+# Route v2.0-beta
 Route - Fast, flexible routing for PHP, enabling you to quickly and easily build RESTful web applications.
 
 ## Installation
-You can download it and using it without any changes.
-
-OR use Composer.
-
-It's recommended that you use [Composer](https://getcomposer.org/) to install Route.
-
 ```bash
 $ composer require nezamy/route
 ```
 Or if you looking for ready template for using this route Go to https://github.com/nezamy/just
 
 
-Route requires PHP 5.4.0 or newer.
+Route requires PHP 7.4.0 or newer.
 
 ## Usage
 Only if using composer create index.php in root.
 
 Create an index.php file with the following contents:
 ```php
-<?php
+<?php declare(strict_types=1);
+use Just\Routing\Router;
 define('DS', DIRECTORY_SEPARATOR);
 define('BASE_PATH', __DIR__ . DS);
 //Show errors
@@ -33,31 +28,56 @@ error_reporting(E_ALL);
 
 require BASE_PATH.'vendor/autoload.php';
 
-$app            = System\App::instance();
-$app->request   = System\Request::instance();
-$app->route     = System\Route::instance($app->request);
+try {
+    $route = container()->get(Router::class);
+    include 'app/routes.php';
+    $output = $route->run();
 
-$route          = $app->route;
+    foreach ($output->headers->all() as $k => $v) {
+        header("$k: $v");
+    }
+    http_response_code($output->statusCode());
+    if ($output->hasRedirect()) {
+        list($url, $code) = $output->getRedirect();
+        header("Location: $url", true, $code);
+    }
 
-$route->any('/', function() {
-    echo 'Hello World';
+    echo $output->body();
+} catch (\Error $e) {
+    pre($e, 'Error', 6);
+    echo response()->body();
+} catch (\Exception $e) {
+    pre($e, 'Exception', 6);
+    echo response()->body();
+}
+```
+app/routes.php
+```php
+<?php
+use Just\Route;
+
+Route::get('/', function (){
+    return 'Welcome to the home page';
 });
 
-$route->end();
+// Maybe you want to customize 404 page
+Route::setNotfound(function (){
+    return 'Page Not found';
+});
 ```
-If using apache make sure the .htaccess file has exists beside index.php 
 
 ## How it works
 Routing is done by matching a URL pattern with a callback function.
 
 ### index.php
 ```php
-$route->any('/', function() {
-    echo 'Hello World';
+Route::any('/', function() {
+    return 'Hello World';
 });
 
-$route->any('/about', function() {
-    echo 'About';
+Route::post('/about', function(\Just\Http\Request $req) {
+    pre($req->body, 'Request');
+
 });
 
 ```
@@ -65,100 +85,83 @@ $route->any('/about', function() {
 ### The callback can be any object that is callable. So you can use a regular function:
 ```php
 function pages() {
-    echo 'Page Content';
+    return 'Page Content';
 }
-$route->get('/', 'pages');
+Route::get('/', 'pages');
 ```
 
 ### Or a class method:
 ```php
 class home
 {
-    function pages() {
-        echo 'Home page Content';
+    public function pages() {
+        return 'Home page Content';
     }
 }
-$route->get('/', ['home', 'pages']);
+Route::get('/', ['home', 'pages']);
 // OR
 $home = new home;
-$route->get('/', [$home, 'pages']);
+Route::get('/', [$home, 'pages']);
 // OR
-$route->get('/', 'home@pages');
+Route::get('/', 'home@pages');
 ```
 ## Method Routing
 ```php
-$route->any('/', function() {
+Route::any('/', function() {
     // Any method requests
 });
 
-$route->get('/', function() {
+Route::get('/', function() {
     // Only GET requests
 });
 
-$route->post('/', function() {
+Route::post('/', function() {
     // Only POST requests
 });
 
-$route->put('/', function() {
+Route::put('/', function() {
     // Only PUT requests
 });
 
-$route->patch('/', function() {
+Route::patch('/', function() {
     // Only PATCH requests
 });
 
-$route->delete('/', function() {
+Route::delete('/', function() {
     // Only DELETE requests
 });
+```
 
-// You can use multiple methods. Just add _ between method names
-$route->get_post('/', function() {
-    // Only GET and POST requests
-});
-```
-## Multiple Routing (All in one)
-```php
-$route->get(['/', 'index', 'home'], function() {
-    // Will match 3 page in one
-});
-```
 ## Parameters
 ```php
 // This example will match any page name
-$route->get('/?', function($page) {
-    echo "you are in $page";
+Route::get('/{page}', function($page) {
+    return "you are in $page";
 });
 
-// This example will match anything after post/ - limited to 1 argument
-$route->get('/post/?', function($id) {
+// This example will match anything after post/
+Route::get('/post/{id}', function($id) {
     // Will match anything like post/hello or post/5 ...
     // But not match /post/5/title
-    echo "post id $id";
+    return "post id $id";
 });
 
 // more than parameters
-$route->get('/post/?/?', function($id, $title) {
-    echo "post id $id and title $title";
+Route::get('/post/{id}/{title}', function($id, $title) {
+    return "post id $id and title $title";
+});
+
+// you can get parameter in any order
+Route::get('/post/{id}/{title}', function($title, $id) {
+    return "post id $id and title $title";
 });
 ```
 
 ### For “unlimited” optional parameters, you can do this:
 ```php
 // This example will match anything after blog/ - unlimited arguments
-$route->get('/blog/*', function() {
-    // [$this] instanceof ArrayObject so you can get all args by getArrayCopy()
-    pre($this->getArrayCopy());
-    pre($this[1]);
-    pre($this[2]);
-});
-```
-## Named Parameters
-You can specify named parameters in your routes which will be passed along to your callback function.
-```php
-$route->get('/{username}/{page}', function($username, $page) {
-    echo "Username $username and Page $page <br>";
-    // OR
-    echo "Username {$this['username']} and Page {$this['page']}";
+Route::get('/blog/{any}:*', function($any) {
+    pre($any);
 });
 ```
 
@@ -166,21 +169,24 @@ $route->get('/{username}/{page}', function($username, $page) {
 You can validate the args by regular expressions.
 ```php
 // Validate args by regular expressions uses :(your pattern here)
-$route->get('/{username}:([0-9a-z_.-]+)/post/{id}:([0-9]+)',
-function($username, $id)
-{
-    echo "author $username post id $id";
+Route::get('/{username}:([0-9a-z_.-]+)/post/{id}:([0-9]+)',
+function($username, $id) {
+    return "author $username post id $id";
 });
 
 // You can add named regex pattern in routes
-$route->addPattern([
-    'username' => '/([0-9a-z_.-]+)',
-    'id' => '/([0-9]+)'
+Route::addPlaceholders([
+    'username' => '([0-9a-z_.-]+)',
+    'id' => '([0-9]+)'
 ]);
 
 // Now you can use named regex
-$route->get('/{username}:username/post/{id}:id', function($username, $id) {
-    echo "author $username post id $id";
+Route::get('/{username}:username/post/{id}:id', function($username, $id) {
+    return "author $username post id $id";
+});
+//if the parameter name match the placeholder name just ignore placeholder and route will deduct that
+Route::get('/{username}/post/{id}', function($username, $id) {
+    return "author $username post id $id";
 });
 ```
 
@@ -196,104 +202,85 @@ $route->get('/{username}:username/post/{id}:id', function($username, $id) {
     'isoCode3'          => '/([a-z]{3})',
     'multiIsoCode2'     => '/([a-z,]{2,})',
     'multiIsoCode3'     => '/([a-z,]{3,})'
-]
+];
 ```
 ## Optional parameters
 You can specify named parameters that are optional for matching by adding (?)
 ```php
-$route->get('/post/{title}?:title/{date}?',
+Route::get('/post/{title}?:title/{date}?',
 function($title, $date) {
+    $content = '';
     if ($title) {
-        echo "<h1>$title</h1>";
+        $content = "<h1>$title</h1>";
     }else{
-        echo "<h1>Posts List</h1>";
+        $content =  "<h1>Posts List</h1>";
     }
 
     if ($date) {
-        echo "<small>Published $date</small>";
+        $content .= "<small>Published $date</small>";
     }
+    return $content;
+
 });
 ```
 ## Groups
 ```php
-$route->group('/admin', function()
+Route::group('/admin', function()
 {
     // /admin/
-    $this->get('/', function() {
-        echo 'welcome to admin panel';
+    Route::get('/', function() {
+        return 'welcome to admin panel';
     });
 
     // /admin/settings
-    $this->get('/settings', function() {
-        echo 'list of settings';
+    Route::get('/settings', function() {
+        return 'list of settings';
     });
 
     // nested group
-    $this->group('/users', function()
+    Route::group('/users', function()
     {
         // /admin/users
-        $this->get('/', function() {
-            echo 'list of users';
+        Route::get('/', function() {
+            return 'list of users';
         });
 
         // /admin/users/add
-        $this->get('/add', function() {
-            echo 'add new user';
+        Route::get('/add', function() {
+            return 'add new user';
         });
     });
 
     // Anything else
-    $this->any('/*', function() {
-        pre("Page ( {$this->app->request->path} ) Not Found", 6);
+    Route::any('/{any}:*', function($any) {
+        pre("Page ( $any ) Not Found", 6);
     });
 });
 ```
 
 ### Groups with parameters
 ```php
-$route->group('/{lang}?:isoCode2', function($lang)
+Route::group('/{module}', function($lang)
 {
-    $default = $lang;
-
-    if (!in_array($lang, ['ar', 'en'])) {
-        $default = 'en';
-    }
-
-    $this->get('/', function($lang) use($default) {
-        echo "lang in request is $lang<br>";
-        echo "include page_{$default}.php";
+    Route::post('/create', function() {
+   
     });
 
-    $this->get('/page/{name}/', function($lang, $name)
-    {
-        pre(func_get_args());
-        pre($this->app->request->args);
+    Route::put('/update', function() {
+    
     });
+
 });
 ```
+
+
 
 ### Middleware
 ```php
 
-$route->use(function (){
-    $req = app('request');
-    pre('Do something before all routes', 3);
-});
-
-$route->before('/', function (){
-    pre('Do something before all routes', 4);
-});
-
-$route->before('/*!admin', function (){
-    pre('Do something before all routes except admin', 4);
-});
-
-$route->before('/admin|home', function (){
-    pre('Do something before admin and home only ', 4);
-});
-
-$route->after('/admin|home', function (){
-    pre('Do something after admin and home only ', 4);
+Route::use(function ($next){
+    //validate something the call next to continue or return whatever if you want break 
+    return $next();
 });
 
 ```

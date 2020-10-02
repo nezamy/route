@@ -1,26 +1,58 @@
 {
-    "name": "nezamy/route",
-    "type": "library",
-    "description": "Route - Fast, flexible routing for PHP, enabling you to quickly and easily build RESTful web applications.",
-    "keywords": ["route", "restful", "api", "justframework"],
-    "homepage": "https://nezamy.com/route",
-    "license": "MIT",
-    "authors": [
+  "name": "nezamy/route",
+  "type": "library",
+  "description": "Route - Fast, flexible routing for PHP, enabling you to quickly and easily build RESTful web applications.",
+  "keywords": [
+    "route",
+    "restful",
+    "api",
+    "justframework"
+  ],
+  "homepage": "https://nezamy.com/route",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Mahmoud Elnezamy",
+      "email": "mahmoud@nezamy.com",
+      "homepage": "http://nezamy.com",
+      "role": "Full Stack Web Developer"
+    }
+  ],
+    "repositories": [
         {
-            "name": "Mahmoud Elnezamy",
-            "email": "mahmoud@nezamy.com",
-            "homepage": "http://nezamy.com",
-            "role": "Full Stack Web Developer"
+            "type": "path",
+            "url": "../di",
+            "options": {
+                "symlink": true
+            }
         }
     ],
-    "require": {
-        "php": ">=5.4.0",
-        "nezamy/support": "1.0.*"
+  "autoload": {
+    "psr-4": {
+      "Just\\": "src/",
+      "": ""
     },
-    "autoload": {
-        "psr-4": {
-            "System\\": "system"
-        },
-        "files": ["system/function.php"]
+    "files": [
+      "src/functions.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Just\\Test\\": "tests/"
     }
+  },
+  "require": {
+    "php": ">=7.4",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "nezamy/di": "dev-main"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^7.5 || ^8.5",
+    "friendsofphp/php-cs-fixer": "^2.16"
+  },
+  "scripts": {
+    "fix": "php-cs-fixer fix ./src",
+    "test": "phpunit"
+  }
 }

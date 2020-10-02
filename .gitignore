@@ -5,3 +5,4 @@ ehthumbs.db
 .idea
 .idea/vcs.xml
 vendor
+.phpunit.*
