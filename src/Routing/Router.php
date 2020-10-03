@@ -177,7 +177,7 @@ class Router
         $this->currentGroupOptions = $previousGroupOptions;
     }
 
-    public function middleware(callable ...$middleware): Router
+    public function middleware(...$middleware): Router
     {
         $id = uniqid((string) rand());
         $this->middleware_list[$id] = $middleware;
@@ -188,7 +188,7 @@ class Router
         return $this;
     }
 
-    public function use(callable ...$middleware): Router
+    public function use(...$middleware): Router
     {
         $this->globalMiddleware = array_merge($this->globalMiddleware, $middleware);
         return $this;
@@ -228,13 +228,11 @@ class Router
                 $this->request->setArguments($args);
             }
 
-            $middleware = new Middleware();
+            $middleware = new Middleware($this->handler);
             $middleware->add($matched->getMiddleware());
 
-            $output = $this->handler->call(
-                $middleware->handle(
-                    $matched->getHandler($this->handler)
-                )
+            $output = $middleware->handle(
+                $matched->getHandler($this->handler)
             );
 
             $this->response->write($output ?? '');
@@ -281,9 +279,7 @@ class Router
             $this->handleGroupOptions($matched->options);
         }
 
-        if ($matched->options->has('middleware') || $matched->hasMiddleware()) {
-            $this->handleMiddleware($matched);
-        }
+        $this->handleMiddleware($matched);
 
         if ($matched->options->has('namespace')) {
             $matched->addNamespaceToHandler();

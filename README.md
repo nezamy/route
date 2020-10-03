@@ -10,6 +10,15 @@ Or if you looking for ready template for using this route Go to https://github.c
 
 Route requires PHP 7.4.0 or newer.
 
+## Changes list
+- Rewrite route based on php 7.4
+- Support Swoole extensions
+- Support locales to build multi languages website
+- Added Auth, Basic, Digest
+- Availability to customize route parser and handler
+- Smart dependency injection and service container
+
+
 ## Usage
 Only if using composer create index.php in root.
 
@@ -25,11 +34,11 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 //===================================
-
 require BASE_PATH.'vendor/autoload.php';
 $request = new Just\Http\GlobalRequest;
 $response = new Just\Http\Response;
 $route = new Just\Routing\Router($request, $response);
+// let store them to container, to use the as a singleton
 container()->set(Just\Http\Request::class, $request);
 container()->set(Just\Http\Response::class, $response);
 container()->set(Just\Routing\Router::class, $route);
@@ -47,14 +56,13 @@ try {
         header("Location: $url", true, $code);
     }
 
-    echo $output->body();
 } catch (\Error $e) {
     pre($e, 'Error', 6);
-    echo response()->body();
 } catch (\Exception $e) {
     pre($e, 'Exception', 6);
-    echo response()->body();
 }
+
+echo response()->body();
 ```
 app/routes.php
 ```php
@@ -71,18 +79,80 @@ Route::setNotfound(function (){
 });
 ```
 
+### Use with [Swoole](https://www.swoole.co.uk) 
+```php
+<?php
+declare(strict_types=1);
+
+use Swoole\Http\Server;
+use Swoole\Http\Request;
+use Swoole\Http\Response;
+
+use Just\Routing\Router;
+
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
+require __DIR__ . '/vendor/autoload.php';
+
+$http = new Server("0.0.0.0", 9501);
+$http->set([
+    'document_root' => '/var/www/public',
+    'enable_static_handler' => true,
+]);
+$http->on("request", function (Request $request, Response $response) {
+
+    $request = new Just\Http\Request(
+       $request->header ?? [],
+       $request->server ?? [],
+       $request->cookie ?? [],
+       $request->get ?? [],
+       $request->post ?? [],
+       $request->files ?? [],
+       $request->tmpfiles ?? []
+    );
+    $response = new Just\Http\Response;
+    $route = new Just\Routing\Router($request, $response);
+	container()->set(Just\Http\Request::class, $request);
+	container()->set(Just\Http\Response::class, $response);
+	container()->set(Router::class, $route);
+    try {
+        include __DIR__ .'/app/routes.php';
+        $output = $route->run();
+        foreach ($output->headers->all() as $k => $v) {
+            $response->header($k, $v);
+        }
+
+        $response->setStatusCode($output->statusCode());
+
+        if ($output->hasRedirect()) {
+            list($url, $code) = $output->getRedirect();
+            $response->redirect($url, $code);
+        }
+    } catch (\Error $e) {
+        pre($e, 'Error', 6);
+    } catch (\Exception $e) {
+        pre($e, 'Exception', 6);
+    }
+    $response->end(response()->body(true));
+});
+$http->start();
+```
+
+
 ## How it works
 Routing is done by matching a URL pattern with a callback function.
 
-### index.php
+
+### app/routes.php
 ```php
 Route::any('/', function() {
     return 'Hello World';
 });
 
-Route::post('/about', function(\Just\Http\Request $req) {
+Route::post('/contact-us', function(\Just\Http\Request $req) {
     pre($req->body, 'Request');
-
 });
 
 ```
@@ -103,38 +173,19 @@ class home
         return 'Home page Content';
     }
 }
-Route::get('/', ['home', 'pages']);
-// OR
-$home = new home;
-Route::get('/', [$home, 'pages']);
+Route::get('/', [home::class, 'pages']);
 // OR
 Route::get('/', 'home@pages');
 ```
 ## Method Routing
 ```php
-Route::any('/', function() {
-    // Any method requests
-});
-
-Route::get('/', function() {
-    // Only GET requests
-});
-
-Route::post('/', function() {
-    // Only POST requests
-});
-
-Route::put('/', function() {
-    // Only PUT requests
-});
-
-Route::patch('/', function() {
-    // Only PATCH requests
-});
-
-Route::delete('/', function() {
-    // Only DELETE requests
-});
+Route::any('/', function() {});
+Route::get('/', function() {});
+Route::post('/', function() {});
+Route::put('/', function() {});
+Route::patch('/', function() {});
+Route::option('/', function() {});
+Route::delete('/', function() {});
 ```
 
 ## Parameters
@@ -144,7 +195,6 @@ Route::get('/{page}', function($page) {
     return "you are in $page";
 });
 
-// This example will match anything after post/
 Route::get('/post/{id}', function($id) {
     // Will match anything like post/hello or post/5 ...
     // But not match /post/5/title
@@ -233,29 +283,17 @@ function($title, $date) {
 Route::group('/admin', function()
 {
     // /admin/
-    Route::get('/', function() {
-        return 'welcome to admin panel';
-    });
-
+    Route::get('/', function() {});
     // /admin/settings
-    Route::get('/settings', function() {
-        return 'list of settings';
-    });
-
+    Route::get('/settings', function() {});
     // nested group
     Route::group('/users', function()
     {
         // /admin/users
-        Route::get('/', function() {
-            return 'list of users';
-        });
-
+        Route::get('/', function() {});
         // /admin/users/add
-        Route::get('/add', function() {
-            return 'add new user';
-        });
+        Route::get('/add', function() {});
     });
-
     // Anything else
     Route::any('/{any}:*', function($any) {
         pre("Page ( $any ) Not Found", 6);
@@ -267,29 +305,160 @@ Route::group('/admin', function()
 ```php
 Route::group('/{module}', function($lang)
 {
-    Route::post('/create', function() {
-   
-    });
-
-    Route::put('/update', function() {
-    
-    });
-
+    Route::post('/create', function() {});
+    Route::put('/update', function() {});
 });
 ```
 
+### Locales 
+```php
+// the first language is the default i.e. ar
+// when you hit the site http://localhost on the first time will redirect to  http://localhost/ar
+Route::locale(['ar','en'], function(){
+    // will be /ar/
+    Route::get('/', function($locale){
+        //get current language
+        pre($locale);
+    });
+    // /ar/contact
+    Route::get('/contact', function() {});
 
+    Route::group('/blog', function() {
+        // /ar/blog/
+        Route::get('/', function() {});
+    });
+});
+// Also you can write locales like that or whatever you want
+Route::locale(['ar-eg','en-us'], function(){
+    // will be /ar/
+    Route::get('/', function($locale){
+        //get current language
+        list($lang, $country) = explode('-', $locale, 2);
+        pre("Lang is $lang, Country is $country");
+    });
+});
+```
+### Auth
+#### Basic
+```php
+$auth = new \Just\Http\Auth\Basic(['users' => [
+    'user1' => '123456',
+    'user2' => '987654'
+]]);
+Route::auth($auth, function (){
+    Route::get('/secret', function(\Just\Http\Request $req){
+        pre("Hello {$req->user()->get('username')}, this is a secret page");
+    });
+});
+```
+#### Digest
+```php
+$auth = new \Just\Http\Auth\Digest(['users' => [
+    'user1' => '123456',
+    'user2' => '987654'
+]]);
+Route::auth($auth, function (){
+    Route::get('/secret', function(\Just\Http\Request $req){
+        pre("Hello {$req->user()->get('username')}, this is a secret page");
+    });
+});
+```
 
 ### Middleware
-```php
 
-Route::use(function ($next){
+#### Global
+```php
+Route::use(function (\Just\Http\Request $req, $next){
     //validate something the call next to continue or return whatever if you want break 
+    if($req->isMobile()){
+        return 'Please open from a desktop';
+    }
+    
     return $next();
+}, function ($next){
+    // another middleware
+    $next();
 });
 
+// After 
+Route::use(function ($next){
+    $response =  $next();
+    // make some action
+    return $response;
+});
+```
+#### Middleware on groups
+```php
+// if open from mobile device
+Route::middleware(fn(\Just\Http\Request $req, $next) => !$req->isMobile() ? '' : $next())
+    ->group('/mobile-only', function (){
+        Route::get('/', function(\Just\Http\Request $req){
+            pre($req->browser());
+        });
+    });
+```
+If you make the middleware as a class, you can pass the class with namespace.
+the class should be had a `handle` method.  
+```php
+class MobileOnly{
+    public function handle(\Just\Http\Request $req, $next){
+        return !$req->isMobile() ? '' : $next();
+    }
+}
+Route::middleware(MobileOnly::class)
+    ->group('/',function (){
+        Route::get('/', function(\Just\Http\Request $req){
+            pre($req->browser());
+        });
+    });
 ```
 
-# Full examples [here](http://nezamy.com/route)
-## Support me 
-https://www.paypal.me/nezamy
+#### Middleware on route
+```php
+Route::get('/', function(\Just\Http\Request $req){
+    pre($req->browser());
+})->middleware(MobileOnly::class);
+```
+
+### Dependency injection
+To learn about Dependency injection and service container please visit this [link](https://github.com/nezamy/di)
+
+### Handle and Parser customization
+Example of CustomRouteHandler
+```php
+class CustomRouteHandler implements Just\Routing\RouteHandlerInterface
+{
+    public function call(callable $handler, array $args = [])
+    {
+        return call_user_func_array($handler, $args);
+    }
+
+    public function parse($handler): callable
+    {
+        if (is_string($handler) && ! function_exists($handler)) {
+            $handler = explode('@', $handler, 2);
+        }
+        return $handler;
+    }
+}
+\Just\Route::setHandler(new CustomRouteHandler);
+```
+
+
+```php
+class CustomRouteParser implements RouteParserInterface
+{
+    public function parse(string $uri): array
+    {
+        $matchedParameter = [];
+        $matchedPattern = [];
+        $result = [];
+        // parse uri here and return array of 3 elements
+        // /{page}
+        // /{page}?
+
+        return ['parameters' => $matchedParameter, 'patterns' => $matchedPattern, 'result' => $result];
+    }
+}
+\Just\Route::setParser(new CustomRouteParser);
+```

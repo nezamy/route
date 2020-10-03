@@ -11,11 +11,17 @@ declare(strict_types=1);
  */
 namespace Just\Http;
 
-use Just\DI\Resolver;
+use Just\Routing\RouteHandlerInterface;
 
 class Middleware
 {
     private array $layers = [];
+    private RouteHandlerInterface $handler;
+
+    public function __construct(RouteHandlerInterface $handler)
+    {
+        $this->handler = $handler;
+    }
 
     public function add(array $layers): void
     {
@@ -25,21 +31,24 @@ class Middleware
     public function handle(callable $core)
     {
         $layers = array_reverse($this->layers);
-        return array_reduce($layers, function ($nextLayer, $layer) {
+        $final =  array_reduce($layers, function ($nextLayer, $layer) {
             return $this->createLayer($nextLayer, $layer);
         }, function () use ($core) {
-            return (new Resolver())->resolve($core);
+            return $this->handler->call($core);
         });
+
+        return $this->handler->call($final);
     }
 
-    private function createLayer(callable $nextLayer, callable $layer): callable
+    private function createLayer($nextLayer, $layer): callable
     {
         return function () use ($nextLayer, $layer) {
             container()->setVar('next', $nextLayer);
-            if (is_object($layer) && method_exists($layer, 'handle')) {
-                return (new Resolver())->resolve([$layer, 'handle']);
+            if(is_string($layer) && class_exists($layer)){
+                $layer = [$layer, 'handle'];
             }
-            return (new Resolver())->resolve($layer);
+            $layer = $this->handler->parse($layer);
+            return $this->handler->call($layer);
         };
     }
 }

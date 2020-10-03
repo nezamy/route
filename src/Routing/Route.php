@@ -76,7 +76,7 @@ class Route
         $this->args = $args;
     }
 
-    public function middleware(callable ...$middleware)
+    public function middleware(...$middleware)
     {
         $this->middleware = array_merge($this->middleware, $middleware);
         return $this;

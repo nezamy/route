@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace Just;
 
 use Just\Http\Auth\AuthInterface;
+use Just\Routing\RouteHandlerInterface;
+use Just\Routing\RouteParserInterface;
 
 /**
  * Class App.
@@ -31,6 +33,9 @@ use Just\Http\Auth\AuthInterface;
  * @method static void setNotfound($handler)
  * @method static void group($prefix, callable $callback)
  * @method static void use(...$middleware)
+ * @method static void setHandler(RouteHandlerInterface $handler)
+ * @method static void setParser(RouteParserInterface $parser)
+ *
  */
 class Route
 {

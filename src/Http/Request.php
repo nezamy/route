@@ -27,17 +27,17 @@ class Request
 {
     public GetterObject $headers;
 
-    public $server = [];
+    public GetterObject $server;
 
-    public $cookies = [];
+    public GetterObject $cookies;
 
-    public $query = [];
+    public GetterObject $query;
 
-    public $body = [];
+    public GetterObject $body;
 
-    public $files = [];
+    public GetterObject $files;
 
-    public $tmp_files = [];
+    public GetterObject $tmp_files;
 
     protected $_arguments = [];
 
@@ -53,7 +53,7 @@ class Request
 
     protected $_scheme;
 
-    protected $_user = [];
+    protected GetterObject $_user;
 
     public function __construct(array $headers, array $server, array $cookies, array $query, array $body, array $files, $tmp_files = [])
     {
@@ -108,7 +108,7 @@ class Request
 
     public function setUser(array $user): void
     {
-        $this->_user = $user;
+        $this->_user = new GetterObject($user);
     }
 
     public function isJson(): bool
