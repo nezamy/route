@@ -38,7 +38,7 @@ require BASE_PATH.'vendor/autoload.php';
 $request = new Just\Http\GlobalRequest;
 $response = new Just\Http\Response;
 $route = new Just\Routing\Router($request, $response);
-// let store them to container, to use the as a singleton
+// let store them to container, to use them as a singleton
 container()->set(Just\Http\Request::class, $request);
 container()->set(Just\Http\Response::class, $response);
 container()->set(Just\Routing\Router::class, $route);
